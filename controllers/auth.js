@@ -41,7 +41,6 @@ async function register(req, res,next)
     if(docs)
     {
       res.send("Email ALready exists");
-      //res.send(error);
     }
     else{
 
