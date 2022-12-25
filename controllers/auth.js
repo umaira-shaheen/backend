@@ -4,7 +4,7 @@ async function get_data(req,res,next)
   res.send(req.query.name);
 }
 
-async function get_age(req,res,next)
+async function get_age(req,res,next) 
 {
   res.send(req.query.age);
 }
@@ -20,10 +20,39 @@ async function validate(req,res,next)
     {
       res.send(error);
     }
-    else{
+    else
+    {
       res.send(docs);
     }
-  });
+  })
+}
+async function register(req, res,next) 
+{
+  // madam g... findOne? aap data insert kr rhi hen ya find kr rhi hen?
+  //mujay pata tha ap ko samaj ni ayegi
+  //call krein samjhaun
+  // oh acha acha... advance kaam kr rhi hen.. pely email cec kr rhihen k db me a ha ya nai
+  // good good
+  //ni ni call to krein samjhati hu
+  // acha 1 min
+  // internet behtreen chal rha aaj to aap ka
+  user.findOne({email:req.body.email},function(error,docs)
+  {
+    if(docs)
+    {
+      res.send("Email ALready exists");
+      //res.send(error);
+    }
+    else{
+
+      const first_user=new user({name:req.body.name, email:req.body.email,password:req.body.password});
+      first_user.save().then((result) => res.send("successfully inserted"))
+     .catch((error) => res.send(error));
+     
+      // res.send(docs);
+    }
+  })
+};
   // const email=req.body.email;
   // const password=req.body.password;
   // const email="umairaraja01@gmail.com";
@@ -36,5 +65,5 @@ async function validate(req,res,next)
   // {
   //   res.send('failed');
   // }
-}
-module.exports={get_data, get_age, get_marks , validate};
+
+module.exports={get_data, get_age, get_marks , validate, register};

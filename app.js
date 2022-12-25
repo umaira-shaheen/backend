@@ -2,7 +2,7 @@
 var mongoose=require('mongoose');
 const authRouter=require('./routes/auth_routes');
 var createError = require('http-errors');
-// const { user } = require("./models/users");
+const { user } = require("./models/users");
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -39,11 +39,11 @@ app.use('/', indexRouter);
 app.use('/about-me', indexRouter);
 app.use('/users', usersRouter);
 
-// app.get("/add_users", async (req, res) => {
-//   const first_user=new user({firstname:'umaira', lastname:'shaheen', email: 'umairaraja01@gmail.com',password:'3606'});
-//   first_user.save().then((result) => res.send("successfully inserted"))
-//  .catch((error) => console.log(error));
-// });
+app.get("/add_users", async (req, res) => {
+ const first_user=new user({name:'umaira', email: 'umairaraja01@gmail.com',password:'3606'});
+  first_user.save().then((result) => res.send("successfully inserted"))
+ .catch((error) => console.log(error));
+});
 
 // app.get('/add_dog',(req, res)=>{
 //   const first_dog=new Dog({id:'1', name:'rock', breed: 'booly',age:'11'});
