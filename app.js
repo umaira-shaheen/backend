@@ -4,6 +4,8 @@ const authRouter=require('./routes/auth_routes');
 var createError = require('http-errors');
 const { user } = require("./models/users");
 var express = require('express');
+
+const sessions=require('express-session');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
@@ -31,8 +33,18 @@ app.set('view engine', 'jade');
 app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+//defining expiry time for session
+const expiry_time=1000*60*60*6;
+app.use(sessions({
+secret:"gujarkhan",
+saveUninitialized:true,
+cookie: { maxAge: expiry_time },
+resave: false 
+
+}))
 app.use(cookieParser());
+
+app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/auth',authRouter);
 app.use('/', indexRouter);

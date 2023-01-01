@@ -14,15 +14,19 @@ async function get_marks(req,res,next)
 }
 async function validate(req,res,next)
 {
+
   user.findOne({email:req.body.email , password:req.body.password},function(error,docs)
   {
-    if(error)
+    if(docs)
     {
-      res.send(error);
+      res.status(200).send(docs);
+     
     }
     else
     {
-      res.send(docs);
+      res.status(404).send('invalid credientials');
+      
+      // res.send(req.session);
     }
   })
 }
@@ -40,6 +44,7 @@ async function register(req, res,next)
   {
     if(docs)
     {
+
       res.send("Email ALready exists");
     }
     else{
@@ -52,6 +57,7 @@ async function register(req, res,next)
     }
   })
 };
+
   // const email=req.body.email;
   // const password=req.body.password;
   // const email="umairaraja01@gmail.com";
