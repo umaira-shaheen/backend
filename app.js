@@ -1,22 +1,58 @@
-
-var mongoose=require('mongoose');
-const authRouter=require('./routes/auth_routes');
-var createError = require('http-errors');
-const { user } = require("./models/users");
 var express = require('express');
 
-const sessions=require('express-session');
+var app = express();
+var cors=require('cors');
+app.use(cors());
+const session = require('express-session');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+app.use(cookieParser());
+app.use(session({
+  resave: true,
+  saveUninitialized: true,
+  secret: "secret"
+}))
+var mongoose=require('mongoose');
+// Middleware logics
+// Add headers before the routes are defined
+app.use(function (req, res, next) {
+
+  // Website you wish to allow to connect
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+
+  // Request methods you wish to allow
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+  // Request headers you wish to allow
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+  // Set to true if you need the website to include cookies in the requests sent
+  // to the API (e.g. in case you use sessions)
+  res.setHeader('Access-Control-Allow-Credentials', true);
+
+  // Pass to next layer of middleware
+  next();
+});
+
+const authRouter=require('./routes/auth_routes');
+const courseRouter=require('./routes/course_routes');
+var usersRouter = require('./routes/user_routes');
+var quizRouter = require('./routes/quiz_routes');
+var assignmentRouter = require('./routes/assignment_routes');
+var createError = require('http-errors');
+const { User } = require("./models/Users");
+const { course } = require("./models/Courses");
+const { quiz} = require("./models/Quiz");
+const { assignment} = require("./models/Assignment")
+
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 
-var app = express();
- var cors=require('cors');
+
+
 const { Console } = require('console');
-const string='mongodb+srv://umaira_shaheen:ushaheen%4012@cluster0.ttwrgxm.mongodb.net/UK_CELL';
+const string='mongodb://localhost:27017/UKCELL';
 // const string= 'mongodb://localhost:27017/test_db';
 mongoose.connect(string).then((result) => app.listen(4000))
 .catch((error) => console.log(error));
@@ -30,32 +66,26 @@ mongoose.connect(string).then((result) => app.listen(4000))
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-app.use(cors());
+
 app.use(logger('dev'));
 app.use(express.json());
-//defining expiry time for session
-const expiry_time=1000*60*60*6;
-app.use(sessions({
-secret:"gujarkhan",
-saveUninitialized:true,
-cookie: { maxAge: expiry_time },
-resave: false 
-
-}))
-app.use(cookieParser());
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/auth',authRouter);
+app.use('/course',courseRouter);
+app.use('/User',usersRouter);
+app.use('/Quiz',quizRouter);
+app.use('/Assignment',assignmentRouter);
 app.use('/', indexRouter);
 app.use('/about-me', indexRouter);
-app.use('/users', usersRouter);
+// app.use('/users', usersRouter);
 
-app.get("/add_users", async (req, res) => {
- const first_user=new user({name:'umaira', email: 'umairaraja01@gmail.com',password:'3606'});
-  first_user.save().then((result) => res.send("successfully inserted"))
- .catch((error) => console.log(error));
-});
+// app.get("/add_courses", async (req, res) => {
+//  const first_course=new course({Course_title:'IELTS', Course_id: 1});
+//   first_course.save().then((result) => res.send("successfully inserted"))
+//  .catch((error) => console.log(error));
+// });
 
 // app.get('/add_dog',(req, res)=>{
 //   const first_dog=new Dog({id:'1', name:'rock', breed: 'booly',age:'11'});

@@ -1,4 +1,5 @@
-const { user } = require("../models/users");
+const { user } = require("../models/Users");
+
 async function get_data(req,res,next)
 {
   res.send(req.query.name);
@@ -19,6 +20,9 @@ async function validate(req,res,next)
   {
     if(docs)
     {
+      // create session here
+      req.session.user = {"email": req.body.email};
+      req.session.save();
       res.status(200).send(docs);
      
     }
@@ -32,14 +36,6 @@ async function validate(req,res,next)
 }
 async function register(req, res,next) 
 {
-  // madam g... findOne? aap data insert kr rhi hen ya find kr rhi hen?
-  //mujay pata tha ap ko samaj ni ayegi
-  //call krein samjhaun
-  // oh acha acha... advance kaam kr rhi hen.. pely email cec kr rhihen k db me a ha ya nai
-  // good good
-  //ni ni call to krein samjhati hu
-  // acha 1 min
-  // internet behtreen chal rha aaj to aap ka
   user.findOne({email:req.body.email},function(error,docs)
   {
     if(docs)
@@ -56,8 +52,26 @@ async function register(req, res,next)
       // res.send(docs);
     }
   })
-};
+}
+async function  AddCourse(req,res,next)
+{
+  course.findOne({courseCode:req.body.coursecode},function(error,docs)
+  {
+    if(docs)
+    {
 
+      res.send("Course with the same coursecode exists");
+    }
+    else{
+
+      const course=new course({coursename:req.body.course_name, coursecode:req.body.course_code, category:req.body.Category, startdate:req.body.start_date, enddate:req.body.end_date, description:req.body.Description});
+      course.save().then((result) => res.send("Course Added successfully"))
+     .catch((error) => res.send(error));
+     
+      // res.send(docs);
+    }
+  })
+}
   // const email=req.body.email;
   // const password=req.body.password;
   // const email="umairaraja01@gmail.com";
@@ -71,4 +85,4 @@ async function register(req, res,next)
   //   res.send('failed');
   // }
 
-module.exports={get_data, get_age, get_marks , validate, register};
+module.exports={get_data, get_age, get_marks , validate, register, AddCourse};
