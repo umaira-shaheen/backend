@@ -14,19 +14,25 @@ const userSchema = new mongoose.Schema({
     },
     Phone_no: {
       type: Number,
-      required: true,
+      // required: true,
     
     },
     Role: {
       type: String,
-      required: true,
+      // required: true,
     
     },
     Address: {
       type: String,
+      // required: true,
+    
+    },
+    Password: {
+      type: String,
       required: true,
     
     }
+    
   });
   
    const user = mongoose.model("user", userSchema);

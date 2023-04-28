@@ -16,12 +16,12 @@ async function get_marks(req,res,next)
 async function validate(req,res,next)
 {
 
-  user.findOne({email:req.body.email , password:req.body.password},function(error,docs)
+  user.findOne({Email:req.body.email , Password:req.body.password},function(error,docs)
   {
     if(docs)
     {
       // create session here
-      req.session.user = {"email": req.body.email};
+      // req.session.reuser = {"email": req.body.email};
       req.session.save();
       res.status(200).send(docs);
      
@@ -36,7 +36,7 @@ async function validate(req,res,next)
 }
 async function register(req, res,next) 
 {
-  user.findOne({email:req.body.email},function(error,docs)
+  user.findOne({Email:req.body.email},function(error,docs)
   {
     if(docs)
     {
@@ -45,7 +45,7 @@ async function register(req, res,next)
     }
     else{
 
-      const first_user=new user({name:req.body.name, email:req.body.email,password:req.body.password});
+      const first_user=new user({First_name:req.body.Firstname, Last_name:req.body.Lastname, Email:req.body.email,Password:req.body.password});
       first_user.save().then((result) => res.send("successfully inserted"))
      .catch((error) => res.send(error));
      
@@ -53,25 +53,7 @@ async function register(req, res,next)
     }
   })
 }
-async function  AddCourse(req,res,next)
-{
-  course.findOne({courseCode:req.body.coursecode},function(error,docs)
-  {
-    if(docs)
-    {
 
-      res.send("Course with the same coursecode exists");
-    }
-    else{
-
-      const course=new course({coursename:req.body.course_name, coursecode:req.body.course_code, category:req.body.Category, startdate:req.body.start_date, enddate:req.body.end_date, description:req.body.Description});
-      course.save().then((result) => res.send("Course Added successfully"))
-     .catch((error) => res.send(error));
-     
-      // res.send(docs);
-    }
-  })
-}
   // const email=req.body.email;
   // const password=req.body.password;
   // const email="umairaraja01@gmail.com";
@@ -85,4 +67,4 @@ async function  AddCourse(req,res,next)
   //   res.send('failed');
   // }
 
-module.exports={get_data, get_age, get_marks , validate, register, AddCourse};
+module.exports={get_data, get_age, get_marks , validate, register};
