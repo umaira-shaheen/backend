@@ -5,21 +5,21 @@ async function  AddCourse(req,res,next)
 {
   res.send(req.session.user);
 
-  course.findOne({Course_code:req.body.course_code},function(error,docs)
-  {
-    if(docs)
-    {
-      res.send("Course with the same coursecode exists");
-    }
-    else{
+  // course.findOne({Course_code:req.body.course_code},function(error,docs)
+  // {
+  //   if(docs)
+  //   {
+  //     res.send("Course with the same coursecode exists");
+  //   }
+  //   else{
 
-      const first_course=new course({Course_title:req.body.course_name, Course_code:req.body.course_code, Course_category:req.body.Category, start_date:req.body.start_date, end_date:req.body.end_date, description:req.body.Description});
-      first_course.save().then((result) => res.send("success"))
-     .catch((error) => res.send(error));
+  //     const first_course=new course({Course_title:req.body.course_name, Course_code:req.body.course_code, Course_category:req.body.Category, start_date:req.body.start_date, end_date:req.body.end_date, description:req.body.Description});
+  //     first_course.save().then((result) => res.send("success"))
+  //    .catch((error) => res.send(error));
      
       // res.send(docs);
-    }
-  })
+  //   }
+  // })
 }
 async function GetCourse(req,res,next)
 {

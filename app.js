@@ -2,38 +2,42 @@ var express = require('express');
 
 var app = express();
 var cors=require('cors');
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  credentials: true
+}));
+
+app.options('*', cors());
+
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  next();
+});
+
 const session = require('express-session');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-app.use(cookieParser());
+app.use(cookieParser('secret', {
+  cookie: {
+    httpOnly: false,
+    path: '/',
+    domain: 'localhost',
+    expires: new Date(Date.now() + 900000),
+    maxAge: 900000,
+    secure: false
+  }
+}));
 app.use(session({
-  resave: true,
+  resave: false,
   saveUninitialized: true,
+  cookie: { secure: false },
   secret: "secret"
 }))
 var mongoose=require('mongoose');
-// Middleware logics
-// Add headers before the routes are defined
-app.use(function (req, res, next) {
-
-  // Website you wish to allow to connect
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-
-  // Request methods you wish to allow
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-
-  // Request headers you wish to allow
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-
-  // Set to true if you need the website to include cookies in the requests sent
-  // to the API (e.g. in case you use sessions)
-  res.setHeader('Access-Control-Allow-Credentials', true);
-
-  // Pass to next layer of middleware
-  next();
-});
 
 const authRouter=require('./routes/auth_routes');
 const courseRouter=require('./routes/course_routes');

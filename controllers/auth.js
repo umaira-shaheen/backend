@@ -9,10 +9,12 @@ async function get_age(req,res,next)
 {
   res.send(req.query.age);
 }
+
 async function get_marks(req,res,next)
 {
   res.send(req.query.marks);
 }
+
 async function validate(req,res,next)
 {
 
@@ -21,7 +23,7 @@ async function validate(req,res,next)
     if(docs)
     {
       // create session here
-      // req.session.reuser = {"email": req.body.email};
+      req.session.user = {"email": req.body.email};
       req.session.save();
       res.status(200).send(docs);
      
