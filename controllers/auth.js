@@ -17,7 +17,6 @@ async function get_marks(req,res,next)
 
 async function validate(req,res,next)
 {
-
   user.findOne({Email:req.body.email , Password:req.body.password},function(error,docs)
   {
     if(docs)
