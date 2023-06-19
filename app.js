@@ -1,5 +1,5 @@
 var express = require('express');
-
+const path = require('path');
 var app = express();
 var cors=require('cors');
 app.use(cors({ credentials: true, origin: true }))
@@ -15,7 +15,6 @@ app.use(function(req, res, next) {
 });
 
 const session = require('express-session');
-var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 app.use(cookieParser('secret', {
@@ -80,6 +79,7 @@ app.use('/Quiz',quizRouter);
 app.use('/Assignment',assignmentRouter);
 app.use('/', indexRouter);
 app.use('/about-me', indexRouter);
+app.use('/uploads', express.static('uploads'));
 // app.use('/users', usersRouter);
 
 // app.get("/add_courses", async (req, res) => {

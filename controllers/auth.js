@@ -22,7 +22,8 @@ async function validate(req,res,next)
     if(docs)
     {
       // create session here
-      req.session.user = {"email": req.body.email};
+      // req.session.user = {"email": req.body.email};
+      req.session.user = docs;
       req.session.save();
       res.status(200).send(docs);
      
@@ -46,7 +47,7 @@ async function register(req, res,next)
     }
     else{
 
-      const first_user=new user({First_name:req.body.Firstname, Last_name:req.body.Lastname, Email:req.body.email,Password:req.body.password});
+      const first_user=new user({First_name:req.body.Firstname, Last_name:req.body.Lastname, Email:req.body.email,Password:req.body.password, Role: req.body.role});
       first_user.save().then((result) => res.send("successfully inserted"))
      .catch((error) => res.send(error));
      
@@ -55,6 +56,17 @@ async function register(req, res,next)
   })
 }
 
+app.get('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      res.send(err);
+      // Handle the error appropriately
+    } else {
+      // Session destroyed successfully
+      res.send('success'); // Redirect to the login page or any other page
+    }
+  });
+});
   // const email=req.body.email;
   // const password=req.body.password;
   // const email="umairaraja01@gmail.com";
