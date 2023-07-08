@@ -19,7 +19,8 @@ const upload = multer({ storage });
 
 const authController=require('../controllers/course');
 router.post('/AddCourse', upload.single('file') , authController.AddCourse);
-router.get('/GetCourse', authController.GetCourse);
+router.get('/GetRecentCourse', authController.GetRecentCourse);
+router.get('/GetAllCourse', authController.GetAllCourse);
 router.get('/DeleteCourse', authController.DeleteCourse);
 router.get('/FindCourse', authController.FindCourse);
 router.post('/EditCourse', authController.EditCourse);

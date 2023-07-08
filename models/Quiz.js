@@ -17,6 +17,10 @@ const quizSchema=new mongoose.Schema({
         type:Number,
         required:true,
 
+      },
+      Status:{
+        type:String,
+        required:true,
       }
       
 });

@@ -1,0 +1,9 @@
+const express=require('express');
+const router=express.Router();
+const authController=require('../controllers/Question');
+router.post('/AddQuestion' , authController.AddQuestion);
+router.get('/GetQuestions', authController.GetQuestions);
+router.get('/DeleteQuestion', authController.DeleteQuestion);
+router.get('/FindQuestion', authController.FindQuestion);
+router.post('/EditQuestion', authController.EditQuestion);
+module.exports=router;

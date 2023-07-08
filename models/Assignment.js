@@ -4,7 +4,7 @@ const assignmentSchema=new mongoose.Schema({
         type: String,
         required: true,
       }, 
-      File:{
+      description:{
         type: String,
         required:true,
       },
@@ -18,7 +18,7 @@ const assignmentSchema=new mongoose.Schema({
         required:true,
 
       },
-      Description:{
+      Status:{
         type:String,
         required:true,
 

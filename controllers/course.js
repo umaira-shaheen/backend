@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 const { course } = require("../models/Courses");
+const fs = require('fs');
 async function AddCourse(req, res, next) {
   const file = req.file;
   const file_path = file.path;
@@ -44,9 +45,15 @@ async function AssignCourse(req, res, next) {
   }
 
 }
-async function GetCourse(req, res, next) {
+async function GetRecentCourse(req, res, next) {
   const filter = {};
   const AllCourses = await course.find(filter).limit(6);
+  res.send(AllCourses);
+
+}
+async function GetAllCourse(req, res, next) {
+  const filter = {};
+  const AllCourses = await course.find(filter);
   res.send(AllCourses);
 
 }
@@ -72,19 +79,19 @@ async function FindCourse(req, res, next) {
   res.send(CourseData);
 };
 async function EditCourse(req, res, next) {
+   
+   
+    course.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.id), { Course_title: req.body.course_name, Course_code: req.body.course_code, Course_category: req.body.Category, start_date: req.body.start_date, end_date: req.body.end_date, description: req.body.Description, status:req.body.status }, function (error, docs) {
+      if (error) {
+        res.send("Failed to update the course");
+      }
+      else {
+        res.send("success");
+      }
+    } 
+  );
+}
 
-  course.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.id), { Course_title: req.body.course_name, Course_code: req.body.course_code, Course_category: req.body.Category, start_date: req.body.start_date, end_date: req.body.end_date, description: req.body.Description }, function (error, docs) {
-    if (error) {
-      res.send("Failed to update the course");
-    }
-    else {
-      res.send("success");
-    }
-
-    // res.send(docs);
-  })
-
-};
 
 async function GetTeacherCourses(req, res, next) {
 
@@ -108,25 +115,6 @@ async function GetTeacherCourses(req, res, next) {
     }
   
 }
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, 'assets/images');
-//   },
-//   filename: function (req, file, cb) {
-//     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-//     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-//   },
-// });
-// const upload = multer({ storage: storage });
 
-// app.post('/api/upload', upload.single('file'), (req, res) => {
-//   console.log(`Received file with original filename: ${req.file.originalname}`);
-//   const filename = req.file.filename;
-//   res.send(filename);
-// });
 
-// app.listen(3000, () => {
-//   console.log('Server listening on port 3000');
-// });
-
-module.exports = { AddCourse, GetCourse, DeleteCourse, FindCourse, EditCourse, GetTeacherCourses, AssignCourse };
+module.exports = { AddCourse, GetRecentCourse, DeleteCourse, GetAllCourse, FindCourse, EditCourse, GetTeacherCourses, AssignCourse };

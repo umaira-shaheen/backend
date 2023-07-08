@@ -21,8 +21,8 @@ async function validate(req,res,next)
   {
     if(docs)
     {
-      // create session here
-      // req.session.user = {"email": req.body.email};
+      
+      req.session.user = {"email": req.body.email};
       req.session.user = docs;
       req.session.save();
       res.status(200).send(docs);
@@ -43,7 +43,7 @@ async function register(req, res,next)
     if(docs)
     {
 
-      res.send("Email ALready exists");
+      res.send("An account with the same email aLready exists");
     }
     else{
 
@@ -55,29 +55,17 @@ async function register(req, res,next)
     }
   })
 }
-
-app.get('/logout', (req, res) => {
+async function logout(req, res, next) {
   req.session.destroy(err => {
     if (err) {
       res.send(err);
-      // Handle the error appropriately
     } else {
-      // Session destroyed successfully
+      
       res.send('success'); // Redirect to the login page or any other page
     }
   });
-});
-  // const email=req.body.email;
-  // const password=req.body.password;
-  // const email="umairaraja01@gmail.com";
-  // const password ="3606";
-  // if(email==req.body.email & password==req.body.password)
-  // {
-  //   res.send('logged in');
-  // }
-  // else
-  // {
-  //   res.send('failed');
-  // }
+}
 
-module.exports={get_data, get_age, get_marks , validate, register};
+ 
+
+module.exports={get_data, get_age, get_marks , validate, register, logout};

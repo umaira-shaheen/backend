@@ -40,11 +40,14 @@ const courseRouter=require('./routes/course_routes');
 var usersRouter = require('./routes/user_routes');
 var quizRouter = require('./routes/quiz_routes');
 var assignmentRouter = require('./routes/assignment_routes');
+var questionRouter = require('./routes/question_routes');
+
 var createError = require('http-errors');
 const { User } = require("./models/Users");
 const { course } = require("./models/Courses");
 const { quiz} = require("./models/Quiz");
 const { assignment} = require("./models/Assignment")
+const { question} = require("./models/Question")
 
 
 var indexRouter = require('./routes/index');
@@ -77,49 +80,13 @@ app.use('/course',courseRouter);
 app.use('/User',usersRouter);
 app.use('/Quiz',quizRouter);
 app.use('/Assignment',assignmentRouter);
+app.use('/Question',questionRouter);
 app.use('/', indexRouter);
 app.use('/about-me', indexRouter);
 app.use('/uploads', express.static('uploads'));
 // app.use('/users', usersRouter);
 
-// app.get("/add_courses", async (req, res) => {
-//  const first_course=new course({Course_title:'IELTS', Course_id: 1});
-//   first_course.save().then((result) => res.send("successfully inserted"))
-//  .catch((error) => console.log(error));
-// });
 
-// app.get('/add_dog',(req, res)=>{
-//   const first_dog=new Dog({id:'1', name:'rock', breed: 'booly',age:'11'});
-//   first_dog.save().then((result) => res.send('successfully inserted'))
-//   .catch((error) => console.log(error));
-// });
-// app.get('/get_dog',async (req, res)=>{
-//   var response= await Dog.find();
-//   res.send(response);
-// });
-
-// app.get("/update_dogs", async (req, res) => {
-//   const my_id = req.query.id
-//   const dog = await Dog.findOneAndUpdate({breed: my_id}, {age: 23}, {new:true});
-//   res.send(dog);
-//   // return res.status(200).json(dog);
-// });
-// app.get("/delete_dogs", async (req, res) => {
-//   const my_id = req.query.id
-//    Dog.findOneAndDelete({breed: my_id},function (err, docs) {
-//     res.send(docs);
-// });
-  
-  // return res.status(200).json(dog);
-// });
-
-// app.get('/add_data',(req, res)=>{
-//   const first_student=new Student({firstname:'ali', lastname:'hassan', email:'ali@gmail.com', password:'ali12'});
-//   first_student.save().then((result) => res.send('successful'))
-//   .catch((error) => console.log(error));
-// });
-
-// catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
 });
