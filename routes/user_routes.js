@@ -21,6 +21,6 @@ router.post('/AddUser' , authController.AddUser);
 router.get('/DeleteUser', authController.DeleteUser);
 router.get('/FindUser', authController.FindUser);
 router.post('/EditUser', authController.EditUser);
-router.post('/EditProfile', authController.EditProfile);
-router.post('/AddProfileImage', upload.single('file'), authController.AddImage);
+router.post('/EditProfile', upload.single('file'),authController.EditProfile);
+
 module.exports=router;

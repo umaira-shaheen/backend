@@ -13,7 +13,7 @@ async function AddCourse(req, res, next) {
       }
       else {
 
-        const first_course = new course({ created_by: admin_id, Course_title: req.body.course_name, Course_code: req.body.course_code,course_img:file_path, status:req.body.status, Course_category: req.body.Category, start_date: req.body.start_date, end_date: req.body.end_date, description: req.body.Description });
+        const first_course = new course({ created_by: admin_id, Course_title: req.body.course_name, Course_code: req.body.course_code, course_img: file_path, status: req.body.status, Course_category: req.body.Category, start_date: req.body.start_date, end_date: req.body.end_date, description: req.body.Description });
         first_course.save().then((result) => res.send("success"))
           .catch((error) => res.send(error));
       }
@@ -79,42 +79,130 @@ async function FindCourse(req, res, next) {
   res.send(CourseData);
 };
 async function EditCourse(req, res, next) {
-   
-   
-    course.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.id), { Course_title: req.body.course_name, Course_code: req.body.course_code, Course_category: req.body.Category, start_date: req.body.start_date, end_date: req.body.end_date, description: req.body.Description, status:req.body.status }, function (error, docs) {
-      if (error) {
-        res.send("Failed to update the course");
-      }
-      else {
-        res.send("success");
-      }
-    } 
+
+
+  course.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.id), { Course_title: req.body.course_name, Course_code: req.body.course_code, Course_category: req.body.Category, start_date: req.body.start_date, end_date: req.body.end_date, description: req.body.Description, status: req.body.status }, function (error, docs) {
+    if (error) {
+      res.send("Failed to update the course");
+    }
+    else {
+      res.send("success");
+    }
+  }
   );
 }
 
 
 async function GetTeacherCourses(req, res, next) {
 
- 
-    if (req.session.user.Role == "Admin") {
-      // get all courses
-      const filter = {};
-      const AllCourses = await course.find(filter);
-      res.send(AllCourses);
-    }
-    else if(req.session.user.Role == "Teacher") {
-      const teacher_id = req.session.user._id;
-      course.find({ assigned_to: teacher_id }, function (err, courses) {
-        if (err) {
-          console.log("Error finding courses: ", err);
-          return;
-        }
 
-        res.send(courses);
-      });
+  if (req.session.user.Role == "Admin") {
+    // get all courses
+    const filter = {};
+    const AllCourses = await course.find(filter);
+    res.send(AllCourses);
+  }
+  else if (req.session.user.Role == "Teacher") {
+    const teacher_id = req.session.user._id;
+    course.find({ assigned_to: teacher_id }, function (err, courses) {
+      if (err) {
+        console.log("Error finding courses: ", err);
+        return;
+      }
+
+      res.send(courses);
+    });
+  }
+
+}
+
+async function EnrollCourse(req, res, next) {
+
+  if (!req.session.user) {
+    res.status(403).send('Not logged in')
+    return
+  }
+  if (req.session.user.Role === 'Student') {
+
+    const courseId = mongoose.Types.ObjectId(req.query.temp_id);
+    const studentId = mongoose.Types.ObjectId(req.session.user._id);
+
+    try {
+      const courseData = await course.findOne({ _id: courseId });
+
+      if (!courseData) {
+        res.status(404).send('Course not found');
+        return;
+      }
+
+      if (courseData.Students && courseData.Students.includes(studentId)) {
+        res.status(200).send('You are already enrolled in this course');
+        return;
+      }
+      // Add the student's ID to the course's Students array
+      else if (courseData.Students) {
+        courseData.Students.push(studentId);
+        await courseData.save();
+        res.status(200).send('Enrollment successful');
+      }
+      else {
+        my_obj = [req.session.user._id]
+        courseData.Students = my_obj
+        await courseData.save();
+        res.status(200).send('Enrollment successful');
+      }
+
     }
+    catch (error) {
+      console.log(error)
+      res.status(500).send(error);
+    }
+  }
+  else {
+    res.status(403).send('Only students can enroll in courses');
+  }
+
+
+
+}
+async function StudentCourses(req, res, next) {
+
+  if (!req.session.user) {
+    res.status(403).send({"message": "Not logged in", "data": null})
+    return
+  }
+
+if(req.session.user.Role=="Student")
+{
+  const studentId = mongoose.Types.ObjectId(req.query.temp_id);
+
+  try {
+    const courseData = await course.find({ Students: studentId });
+    console.log(courseData);
+    if (!courseData) {
+      res.status(404).send({"message": 'No Course Found', "data": null});
+      return;
+    }
+
+    else {
+      res.send({"message": "success", "data": courseData});
+    }
+
+  }
+  catch (error) {
+    console.log(error)
+    res.status(500).send({"message": "error", "data": error});
+  }
+}
+else{
+  res.send({"message":  "only student can access this", "data": null});
+}
   
 }
 
 
-module.exports = { AddCourse, GetRecentCourse, DeleteCourse, GetAllCourse, FindCourse, EditCourse, GetTeacherCourses, AssignCourse };
+
+
+
+
+module.exports = { AddCourse, GetRecentCourse, DeleteCourse, GetAllCourse, FindCourse, EditCourse, GetTeacherCourses, AssignCourse, EnrollCourse, StudentCourses };

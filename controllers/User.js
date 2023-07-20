@@ -66,31 +66,52 @@ async function EditUser(req,res,next)
  async function EditProfile(req,res,next)
 {
   
-  user.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.id), {UserName:req.body.user_name, First_name:req.body.first_name, Last_name:req.body.last_name, Email:req.body.email, Address:req.body.address, Phone_no:req.body.phone_no, Role:req.body.role}, function(error,docs)
+  if(!req.session.user)
   {
-    if(error)
+    res.status(403).send('Not logged in')
+    return
+  }
+  file_path = null
+  if(req.file)
+  {
+    const file = req.file;
+    file_path = file.path;
+  }
+  if(file_path)
+  {
+    user.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.id), {UserName:req.body.user_name, First_name:req.body.first_name, Last_name:req.body.last_name, Email:req.body.email, Address:req.body.address, Phone_no:req.body.phone_no, Role:req.body.role,User_img:file_path,  Bio: req.body.bio}, function(error,docs)
     {
-      res.send("Failed to update the  Record");
-    }
-    else
+      if(error)
+      {
+        res.send({"indicator": "error", "messege": "Failed to update your profile" });
+      }
+      else
+      {
+       res.send({'indicator': 'success', 'path' : file_path, "messege": "Profile Updated successfully" })
+      }
+        
+        // res.send(docs);
+      })
+  }
+  else
+  {
+    user.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.id), {UserName:req.body.user_name, First_name:req.body.first_name, Last_name:req.body.last_name, Email:req.body.email, Address:req.body.address, Phone_no:req.body.phone_no, Role:req.body.role, Bio: req.body.bio}, function(error,docs)
     {
-     res.send("success");
-    }
-      
-      // res.send(docs);
-    })
+      if(error)
+      {
+        res.send({"indicator": "error", "messege": err });
+      }
+      else
+      {
+        res.send({'indicator': 'success', 'path' : null, "messege": "Profile Updated successfully" })
+      }
+        
+        // res.send(docs);
+      })
+  }
+  
  };
 
- async function  AddImage(req,res,next)
-{
-  const file = req.file;
-  const file_path = file.path;
-      const user_img=new user({course_img:file_path});
-      user_img.save().then((result) => res.send("success"))
-     .catch((error) => res.send(error));
-     
-     
-}
  
 
-module.exports={GetUser,AddUser,FindUser,EditUser,DeleteUser, EditProfile, AddImage};
+module.exports={GetUser,AddUser,FindUser,EditUser,DeleteUser, EditProfile};

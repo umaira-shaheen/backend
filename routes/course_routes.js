@@ -26,4 +26,8 @@ router.get('/FindCourse', authController.FindCourse);
 router.post('/EditCourse', authController.EditCourse);
 router.post('/AssignCourse', authController.AssignCourse);
 router.get('/get_teacher_courses', authController.GetTeacherCourses);
+router.get('/EnrollCourse', authController.EnrollCourse);
+router.get('/StudentCourses', authController.StudentCourses);
+
+
 module.exports=router;

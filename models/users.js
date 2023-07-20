@@ -38,6 +38,9 @@ const userSchema = new mongoose.Schema({
   User_img:{
     type:String,
     
+  },
+  Bio:{
+    type:String,
   }
 
 });

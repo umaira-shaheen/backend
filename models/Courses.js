@@ -44,6 +44,9 @@ const courseSchema = new mongoose.Schema({
   status:{
     type:String,
     required:true,
+  },
+  Students:{
+    type:[String]
   }
 }, { timestamps: true });
 const course = mongoose.model("course", courseSchema);

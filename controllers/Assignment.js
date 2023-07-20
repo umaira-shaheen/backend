@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 const { assignment } = require("../models/Assignment");
+const { course } = require("../models/Courses");
 async function GetAssignment(req, res, next) {
   if (!req.session.user) {
     res.status(403).send('Not logged in')
@@ -16,7 +17,7 @@ async function AddAssignment(req, res, next) {
     return
   }
   if (req.session.user.Role === "Teacher") {
-    const first_assignment = new assignment({ Assignment_title: req.body.assignment_title, Date: req.body.date, Total_marks: req.body.total_marks, Status: req.body.status, description: req.body.description });
+    const first_assignment = new assignment({ Assignment_title: req.body.assignment_title, Date: req.body.date, Total_marks: req.body.total_marks, Status: req.body.status, description: req.body.description,Assignment_Course: req.body.Assignment_course });
     first_assignment.save().then((result) => res.send("success"))
       .catch((error) => res.send(error));
   }
@@ -81,6 +82,82 @@ async function EditAssignment(req, res, next) {
     res.status(403).send("Only teacher can access this");
   }
 };
+async function GetTeacherAssignment(req, res, next) {
+  if (!req.session.user) {
+    res.status(403).send('Not logged in')
+    return
+  }
 
-module.exports = { AddAssignment, GetAssignment, DeleteAssignment, EditAssignment, FindAssignment };
+  if(req.session.user.Role=="Teacher")
+  {
+    const teacherId = mongoose.Types.ObjectId(req.query.temp_id);
+    const courseData = await course.find({ assigned_to: teacherId });
+
+    if (!courseData || courseData.length === 0) {
+      res.status(404).send({ message: 'No Course Found', data: null });
+      return;
+    }
+
+    const assignmentData = [];
+    for (const courseItem of courseData) {
+      const course_name = courseItem.Course_title;
+      const assignments = await assignment.find({ Assignment_Course: course_name });
+      assignmentData.push(...assignments);
+    }
+    if (assignmentData.length === 0) {
+      res.status(404).send({ message: 'No Assignment Found', data: null });
+      return;
+    } 
+    else
+     {
+      res.send({ message: 'success', data: assignmentData });
+    }
+  }
+  else 
+  {
+    res.send({ message: 'Only Teacher can access this', data: null });
+  }
+
+
+}
+async function GetStudentAssignment(req, res, next) {
+  if (!req.session.user) {
+    res.status(403).send('Not logged in')
+    return
+  }
+
+  if(req.session.user.Role=="Student")
+  {
+    const studentId = mongoose.Types.ObjectId(req.query.temp_id);
+    const courseData = await course.find({ Students: studentId });
+
+    if (!courseData || courseData.length === 0) {
+      res.status(404).send({ message: 'No Course Found', data: null });
+      return;
+    }
+
+    const assignmentData = [];
+    for (const courseItem of courseData) {
+      const course_name = courseItem.Course_title;
+      const assignments = await assignment.find({ Assignment_Course: course_name });
+      assignmentData.push(...assignments);
+    }
+    if (assignmentData.length === 0) {
+      res.status(404).send({ message: 'No Assignment Found', data: null });
+      return;
+    } 
+    else
+     {
+      res.send({ message: 'success', data: assignmentData });
+    }
+  }
+  else 
+  {
+    res.send({ message: 'Only Student can access this', data: null });
+  }
+
+
+}
+
+module.exports = { AddAssignment, GetAssignment, DeleteAssignment, EditAssignment, FindAssignment, GetTeacherAssignment, GetStudentAssignment };
 

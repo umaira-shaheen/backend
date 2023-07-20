@@ -11,6 +11,12 @@ const quizSchema=new mongoose.Schema({
       End_date:{
         type:Date,
         required:true,
+        validate: {
+          validator: function(value) {
+            return value > this.Start_date; // check if end date is greater than start date
+          },
+          message: 'End date should be greater than start date',
+        },
 
       },
       Questions:{
@@ -19,6 +25,10 @@ const quizSchema=new mongoose.Schema({
 
       },
       Status:{
+        type:String,
+        required:true,
+      },
+      Quiz_Course:{
         type:String,
         required:true,
       }

@@ -22,7 +22,13 @@ const assignmentSchema=new mongoose.Schema({
         type:String,
         required:true,
 
+      },
+      Assignment_Course:{
+        type:String,
+        required:true,
+
       }
+      
       
 });
 const assignment = mongoose.model("assignment", assignmentSchema);
