@@ -29,6 +29,7 @@ async function AddAssignment(req, res, next) {
 
   // res.send(docs);
 };
+
 async function DeleteAssignment(req, res, next) {
   if (!req.session.user) {
     res.status(403).send('Not logged in')
@@ -52,6 +53,14 @@ async function DeleteAssignment(req, res, next) {
   }
 };
 async function FindAssignment(req, res, next) {
+  if (!req.session.user) {
+    res.status(403).send('Not logged in')
+    return
+  }
+  const AssignmentData = await assignment.findOne({ _id: mongoose.Types.ObjectId(req.query.temp_id) });
+  res.send(AssignmentData);
+};
+async function FindAssignmentQuestion(req, res, next) {
   if (!req.session.user) {
     res.status(403).send('Not logged in')
     return
@@ -158,6 +167,23 @@ async function GetStudentAssignment(req, res, next) {
 
 
 }
+async function SearchAssignment(req, res, next) {
 
-module.exports = { AddAssignment, GetAssignment, DeleteAssignment, EditAssignment, FindAssignment, GetTeacherAssignment, GetStudentAssignment };
+  if (!req.session.user) {
+    res.status(403).send('Not logged in');
+    return
+  }
+  if (req.session.user.Role == "Student") {
+    const AssignmentData = await assignment.findOne({ _id: mongoose.Types.ObjectId(req.query.temp_id) });
+    res.send({ message: 'success', data: AssignmentData });
+  }
+  
+  else {
+    res.send({ message: 'Only students can access this', data: null });
+  }
+
+};
+
+
+module.exports = { AddAssignment, GetAssignment, DeleteAssignment, EditAssignment, FindAssignment, GetTeacherAssignment, GetStudentAssignment, SearchAssignment ,FindAssignmentQuestion};
 

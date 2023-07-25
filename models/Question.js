@@ -21,7 +21,11 @@ const questionSchema=new mongoose.Schema({
         type: String,
         required: true,
       },
-      quiz_title: {
+      quiz_id: {
+        type: String,
+        required: true,
+      },
+      quiz_title:{
         type: String,
         required: true,
       },

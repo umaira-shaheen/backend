@@ -31,6 +31,14 @@ const quizSchema=new mongoose.Schema({
       Quiz_Course:{
         type:String,
         required:true,
+      },
+      Submitted_files:{
+        type:Object,
+        
+      },
+      Submitted_by:{
+        type:Object,
+        
       }
       
 });

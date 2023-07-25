@@ -8,5 +8,6 @@ router.get('/FindAssignment', authController.FindAssignment);
 router.post('/EditAssignment', authController.EditAssignment);
 router.get('/GetTeacherAssignment', authController.GetTeacherAssignment);
 router.get('/GetStudentAssignment', authController.GetStudentAssignment);
-
+router.get('/SearchAssignment', authController.SearchAssignment);
+router.get('/FindAssignmentQuestion', authController.FindAssignmentQuestion);
 module.exports=router;

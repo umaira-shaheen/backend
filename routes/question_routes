@@ -6,4 +6,7 @@ router.get('/GetQuestions', authController.GetQuestions);
 router.get('/DeleteQuestion', authController.DeleteQuestion);
 router.get('/FindQuestion', authController.FindQuestion);
 router.post('/EditQuestion', authController.EditQuestion);
+router.get('/QuizQuestions', authController.QuizQuestions);
+router.get('/GetTeacherQuestion', authController.GetTeacherQuestion);
+
 module.exports=router;

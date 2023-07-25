@@ -12,18 +12,76 @@ async function GetQuiz(req, res, next) {
   res.send(AllQuizes);
 
 }
+async function UploadQuiz(req, res, next) {
+  if (!req.session.user) {
+    res.status(403).send('Not logged in')
+    return
+  }
+  if (req.session.user.Role === 'Student') {
+
+    const quizId = mongoose.Types.ObjectId(req.query.temp_id);
+    const studentId = mongoose.Types.ObjectId(req.session.user._id);
+    file_path = null
+    if(req.file)
+    {
+      const file = req.file;
+      file_path = file.path;
+    }
+    if(file_path)
+    {
+    try {
+      const quizData = await quiz.findOne({ _id: quizId });
+
+      if (!quizData) {
+        res.status(404).send('Quiz not found');
+        return;
+      }
+
+      if (quizData.Submitted_by && quizData.Submitted_files &&  quizData.Submitted_by.includes(studentId)) {
+        res.status(200).send('You have already submitted the quiz');
+        return;
+      }
+      // Add the student's ID to the course's Students array
+      else if (quizData.Submitted_by && quizData.Submitted_files ) {
+        quizData.Submitted_files.push(file_path);
+        quizData.Submitted_by.push(studentId);
+        await quizData.save();
+        res.status(200).send('Quiz Submitted!');
+      }
+      else {
+        const student_Ids = [req.session.user._id];
+        const Files_path = [file_path];
+        quizData.Submitted_by = student_Ids;
+        quizData.Submitted_files = Files_path;
+        await quizData.save();
+        res.status(200).send('Quiz Submitted');
+      }
+
+    }
+    catch (error) {
+      console.log(error)
+      res.status(500).send(error);
+    }
+  }
+}
+  else {
+    res.status(403).send('Only students can submit the Quiz');
+  }
+
+
+}
 async function AddQuiz(req, res, next) {
   if (!req.session.user) {
     res.status(403).send('Not logged in')
     return
   }
   if (req.session.user.Role === "Teacher") {
-    
-   
-      const first_quiz = new quiz({ Quiz_title: req.body.quiz_title, Start_date: req.body.start_date, End_date: req.body.end_date, Questions: req.body.questions, Status: req.body.status , Quiz_Course:req.body.quiz_course});
-      first_quiz.save().then((result) => res.send("success"))
-        .catch((error) => res.send(error));
-    
+
+
+    const first_quiz = new quiz({ Quiz_title: req.body.quiz_title, Start_date: req.body.start_date, End_date: req.body.end_date, Questions: req.body.questions, Status: req.body.status, Quiz_Course: req.body.quiz_course });
+    first_quiz.save().then((result) => res.send("success"))
+      .catch((error) => res.send(error));
+
 
   }
 
@@ -80,8 +138,7 @@ async function GetStudentQuiz(req, res, next) {
     return
   }
 
-  if(req.session.user.Role=="Student")
-  {
+  if (req.session.user.Role == "Student") {
     const studentId = mongoose.Types.ObjectId(req.query.temp_id);
     const courseData = await course.find({ Students: studentId });
 
@@ -99,14 +156,12 @@ async function GetStudentQuiz(req, res, next) {
     if (quizData.length === 0) {
       res.status(404).send({ message: 'No Quiz Found', data: null });
       return;
-    } 
-    else
-     {
+    }
+    else {
       res.send({ message: 'success', data: quizData });
     }
   }
-  else 
-  {
+  else {
     res.send({ message: 'Only students can access this', data: null });
   }
 
@@ -117,8 +172,7 @@ async function GetTeacherQuiz(req, res, next) {
     return
   }
 
-  if(req.session.user.Role=="Teacher")
-  {
+  if (req.session.user.Role == "Teacher") {
     const teacherId = mongoose.Types.ObjectId(req.query.temp_id);
     const courseData = await course.find({ assigned_to: teacherId });
 
@@ -136,18 +190,33 @@ async function GetTeacherQuiz(req, res, next) {
     if (quizData.length === 0) {
       res.status(404).send({ message: 'No Quiz Found', data: null });
       return;
-    } 
-    else
-     {
+    }
+    else {
       res.send({ message: 'success', data: quizData });
     }
   }
-  else 
-  {
+  else {
     res.send({ message: 'Only students can access this', data: null });
   }
 
 }
+async function SearchQuiz(req, res, next) {
 
-module.exports = { AddQuiz, GetQuiz, DeleteQuiz, EditQuiz, FindQuiz, GetStudentQuiz, GetTeacherQuiz };
+  if (!req.session.user) {
+    res.status(403).send('Not logged in');
+    return
+  }
+  if (req.session.user.Role == "Student") {
+    const QuestionData = await quiz.findOne({ _id: mongoose.Types.ObjectId(req.query.temp_id) });
+    res.send({ message: 'success', data: QuestionData });
+  }
+  
+  else {
+    res.send({ message: 'Only students can access this', data: null });
+  }
+
+};
+
+
+module.exports = { AddQuiz, GetQuiz, DeleteQuiz, EditQuiz, FindQuiz, GetStudentQuiz, GetTeacherQuiz, SearchQuiz, UploadQuiz };
 
