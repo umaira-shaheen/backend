@@ -27,6 +27,18 @@ const assignmentSchema=new mongoose.Schema({
         type:String,
         required:true,
 
+      },
+      Submitted_files:{
+        type:[String],
+        
+      },
+      Submitted_by:{
+        type:[String],
+        
+      },
+      obtained_marks: {
+        type:[String],
+       
       }
       
       

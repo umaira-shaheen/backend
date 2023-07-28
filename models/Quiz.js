@@ -33,12 +33,18 @@ const quizSchema=new mongoose.Schema({
         required:true,
       },
       Submitted_files:{
-        type:Object,
+        type:[String],
         
       },
       Submitted_by:{
-        type:Object,
+        type:[String],
         
+      },
+      obtained_marks: {
+        type:[String],
+        //[-1, -1, -1]
+        // const index = job.indexof(studnetID)
+        // obtained_marks[index] = marks
       }
       
 });

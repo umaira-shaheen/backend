@@ -19,6 +19,8 @@ const storage = multer.diskStorage({
   
 router.post('/AddQuiz' , authController.AddQuiz);
 router.post('/UploadQuiz', upload.single('file') , authController.UploadQuiz);
+router.post('/UploadMarks',  authController.UploadMarks);
+
 router.get('/GetQuiz', authController.GetQuiz);
 router.get('/DeleteQuiz', authController.DeleteQuiz);
 router.get('/FindQuiz', authController.FindQuiz);
@@ -26,5 +28,5 @@ router.get('/SearchQuiz', authController.SearchQuiz);
 router.post('/EditQuiz', authController.EditQuiz);
 router.get('/GetStudentQuiz', authController.GetStudentQuiz);
 router.get('/GetTeacherQuiz', authController.GetTeacherQuiz);
-
+router.get('/GetOnlyTeacherQuiz', authController.GetOnlyTeacherQuiz);
 module.exports=router;
