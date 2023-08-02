@@ -215,8 +215,19 @@ async function GetStudentAssignment(req, res, next) {
       for (const current_assignment of assignments) {
         // Check if the student's ID is present in the Submitted_by array for each quiz
         const submitted_by_ids = current_assignment.Submitted_by.map(submittedBy => submittedBy.toString());
+        let mark_obt_obj = {}
+        if(current_assignment.Submitted_by.includes(studentId.toString()))
+        {
+          const studentIndex = current_assignment.Submitted_by.indexOf(studentId);
+          const marks =  current_assignment.obtained_marks[studentIndex];
+           mark_obt_obj = {"marks_obtained": marks}
+        }
+        else
+        {
+        mark_obt_obj = {"marks_obtained": "-1"}
+        }
         var has_submitted = submitted_by_ids.includes(studentId.toString());
-        let sub_assignment = { ...current_assignment, ...{ "has_submitted": has_submitted } }
+        let sub_assignment = { ...current_assignment, ...{ "has_submitted": has_submitted },  ...mark_obt_obj }
         assignmentData.push(sub_assignment);
       }
       // assignmentData.push(...assignments);
@@ -285,6 +296,7 @@ async function UploadAssignment(req, res, next) {
         else if (assignmentData.Submitted_by && assignmentData.Submitted_files) {
           assignmentData.Submitted_files.push(file_path);
           assignmentData.Submitted_by.push(studentId);
+          assignmentData.obtained_marks.push("-1")
           await assignmentData.save();
           res.status(200).send('Assignment Submitted!');
         }

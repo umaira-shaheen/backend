@@ -22,6 +22,7 @@ router.post('/UploadQuiz', upload.single('file') , authController.UploadQuiz);
 router.post('/UploadMarks',  authController.UploadMarks);
 
 router.get('/GetQuiz', authController.GetQuiz);
+router.get('/GetObtainedMarks', authController.GetObtainedMarks);
 router.get('/DeleteQuiz', authController.DeleteQuiz);
 router.get('/FindQuiz', authController.FindQuiz);
 router.get('/SearchQuiz', authController.SearchQuiz);

@@ -47,7 +47,7 @@ async function EditQuestion(req, res, next) {
     return
   }
   if (req.session.user.Role === "Teacher") {
-    question.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.id), { Question: req.body.question_title, question_type: req.body.type, options: req.body.options, marks: req.body.marks }, function (error, docs) {
+    question.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.id), { Question: req.body.question_title, questions_type: req.body.type, options: req.body.options, marks: req.body.marks }, function (error, docs) {
       if (error) {
         res.send("Failed to update the Question");
       }
