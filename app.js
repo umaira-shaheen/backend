@@ -2,6 +2,7 @@ var express = require('express');
 const path = require('path');
 var app = express();
 var cors=require('cors');
+
 app.use(cors({ credentials: true, origin: true }))
 
 app.options('*', cors());
@@ -41,6 +42,7 @@ var usersRouter = require('./routes/user_routes');
 var quizRouter = require('./routes/quiz_routes');
 var assignmentRouter = require('./routes/assignment_routes');
 var questionRouter = require('./routes/question_routes');
+var lectureRouter = require('./routes/lecture_routes');
 
 var createError = require('http-errors');
 const { User } = require("./models/Users");
@@ -48,7 +50,7 @@ const { course } = require("./models/Courses");
 const { quiz} = require("./models/Quiz");
 const { assignment} = require("./models/Assignment")
 const { question} = require("./models/Question")
-
+const { lecture} = require("./models/Lecture")
 
 var indexRouter = require('./routes/index');
 
@@ -81,6 +83,7 @@ app.use('/User',usersRouter);
 app.use('/Quiz',quizRouter);
 app.use('/Assignment',assignmentRouter);
 app.use('/Question',questionRouter);
+app.use('/Lecture',lectureRouter);
 app.use('/', indexRouter);
 app.use('/about-me', indexRouter);
 app.use('/uploads', express.static('uploads'));

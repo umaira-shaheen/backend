@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+const sendEmail= require("../Email");
 const { assignment } = require("../models/Assignment");
 const { course } = require("../models/Courses");
 const { user } = require("../models/Users");
@@ -25,10 +26,42 @@ async function AddAssignment(req, res, next) {
     res.status(403).send('Not logged in')
     return
   }
+  let studentIDS = [];
+ 
   if (req.session.user.Role === "Teacher") {
     const first_assignment = new assignment({ Assignment_title: req.body.assignment_title, Date: req.body.date, Total_marks: req.body.total_marks, Status: req.body.status, description: req.body.description,Assignment_Course: req.body.Assignment_course });
-    first_assignment.save().then((result) => res.send("success"))
-      .catch((error) => res.send(error));
+    first_assignment.save();
+      const AssignmentCourse = req.body.Assignment_course;
+      const courseData = await course.findOne({ Course_title: AssignmentCourse });
+      if (courseData) {
+        studentIDS = courseData.Students;
+        const studentDataPromises = studentIDS.map(async (studentID) => {
+          const userData = await user.findOne({ _id: studentID });
+          return userData;
+        });
+        // Resolve all promises
+        const studentDataArray = await Promise.all(studentDataPromises);
+        // studentDataArray now contains user data for each student ID
+        console.log(studentDataArray);
+        const studentEmails = studentDataArray.map((studentData) => studentData.Email); 
+        console.log(studentEmails);
+        //  Specify the recipient's email address
+      const subject = 'Account created successfully';
+      const message = `A new Assignment of ${AssignmentCourse} has been added. Attempt and Submit it before Due Date.`;
+      try {
+        sendEmail(studentEmails, subject, message);
+         res.send("successfully inserted and Emails Sent To students")
+       } catch (error) {
+         console.log(error)
+         res.send("successfully inserted but email not sent")
+       }
+
+      } 
+      else 
+      {
+        console.log("Course not found");
+      }
+      
   }
 
 

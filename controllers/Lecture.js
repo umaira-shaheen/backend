@@ -1,0 +1,96 @@
+var mongoose = require('mongoose');
+const { lecture } = require("../models/Lecture");
+const fs = require('fs');
+async function AddLecture(req, res, next) {
+ res.send(req.files);
+//  return;
+  const lecturefilespath = req.files.map(file=>file.path);
+ 
+  if (req.session.user.Role === "Teacher") {
+       const teacher_id = req.session.user._id;
+        const first_lecture = new lecture({ Added_by: teacher_id, Lecture_title: req.body.Lecture_title, Lecture_Course: req.body.Lecture_Course, Lecture_files:lecturefilespath, Lecture_Number: req.body.Lecture_Number, description: req.body.Description });
+        first_lecture.save().then((result) => res.send("success"))
+          .catch((error) => res.send(error));
+      }
+    
+  
+  else {
+    res.status(403).send("Only Teacher can access this");
+  }
+
+
+
+}
+async function GetLecture(req, res, next) {
+
+
+    if (req.session.user.Role == "Teacher") {
+      const teacher_id = req.session.user._id;
+      lecture.find({ Added_by: teacher_id }, function (err, lectures) {
+        if (err) {
+          console.log("Error finding Lectures: ", err);
+          return;
+        }
+  
+        res.send(lectures);
+      });
+    }
+  
+  }
+  async function FindLecture(req, res, next) {
+    
+  if (!req.session.user) {
+    res.status(403).send('Not logged in')
+    return
+  }
+    const LectureData = await lecture.findOne({ _id: mongoose.Types.ObjectId(req.query.temp_id) });
+    res.send(LectureData);
+  };
+
+  async function EditLecture(req, res, next) 
+  {
+  
+  if (!req.session.user) {
+    res.status(403).send('Not logged in')
+    return
+  }
+  if (req.session.user.Role === "Teacher") {
+   const teacher_id = req.session.user._id;
+    const notesfile = req.file;
+    const audiofile=req.audiofile;
+    const Notesfile_path = notesfile.path;
+    const Audiofile_path = audiofile.path;
+    lecture.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.id), { Added_by: teacher_id, Lecture_title: req.body.Lecture_title, Lecture_Course: req.body.Lecture_Course, Lecture_notes: Notesfile_path,Lecture_audio:Audiofile_path, Lecture_Number: req.body.Lecture_Number, description: req.body.Description  }, function (error, docs) {
+      if (error) {
+        res.send("Failed to update the Lecture");
+      }
+      else {
+        res.send("success");
+      }
+    }
+    );
+  }
+}
+  async function DeleteLecture(req, res, next) {
+    if (!req.session.user) {
+      res.status(403).send('Not logged in')
+      return
+    }
+    if (req.session.user.Role === "Teacher") {
+      lecture.findByIdAndRemove({ _id: mongoose.Types.ObjectId(req.query.temp_id) }, (err) => {
+  
+        if (err) {
+          res.send({ "indicator": "error", "messege": err }); //server run kr k check kren
+        }
+        else {
+          res.send({ "indicator": "success", "messege": "Lecture deleted successfully" });
+        }
+      })
+    }
+  
+  
+    else {
+      res.status(403).send("Only teacher can access this");
+    }
+  };
+module.exports = { AddLecture, GetLecture, FindLecture, EditLecture, DeleteLecture };

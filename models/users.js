@@ -35,6 +35,9 @@ const userSchema = new mongoose.Schema({
     // required: true,
 
   },
+  Confirm_Password:{
+    type:String,
+  },
   User_img:{
     type:String,
     

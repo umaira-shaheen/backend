@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+const sendEmail= require("../Email");
 const { quiz } = require("../models/Quiz");
 const { course } = require("../models/Courses");
 const { user } = require("../models/Users");
@@ -19,8 +20,8 @@ async function UploadQuiz(req, res, next) {
   }
   if (req.session.user.Role === 'Student') {
 
-    const quizId = mongoose.Types.ObjectId(req.query.temp_id);
-    const studentId = mongoose.Types.ObjectId(req.session.user._id);
+    const quizId = Types.ObjectId(req.query.temp_id);
+    const studentId = Types.ObjectId(req.session.user._id);
 
     file_path = null
     if (req.file) {
@@ -76,12 +77,40 @@ async function AddQuiz(req, res, next) {
     return
   }
   if (req.session.user.Role === "Teacher") {
-
-
     const first_quiz = new quiz({ Quiz_title: req.body.quiz_title, Start_date: req.body.start_date, End_date: req.body.end_date, Questions: req.body.questions, Status: req.body.status, Quiz_Course: req.body.quiz_course });
-    first_quiz.save().then((result) => res.send({ "indicator": "success", "messege": "Quiz Added successfully" }))
-      .catch((error) => res.send({ "indicator": "error", "messege": error }));
+    first_quiz.save();
+    const QuizCourse = req.body.quiz_course;
+    const courseData = await course.findOne({ Course_title: QuizCourse });
+    if (courseData) {
+      studentIDS = courseData.Students;
+      const studentDataPromises = studentIDS.map(async (studentID) => {
+        const userData = await user.findOne({ _id: studentID });
+        return userData;
+      });
+      // Resolve all promises
+      const studentDataArray = await Promise.all(studentDataPromises);
+      // studentDataArray now contains user data for each student ID
+      console.log(studentDataArray);
+      const studentEmails = studentDataArray.map((studentData) => studentData.Email);
+      console.log(studentEmails);
+      //  Specify the recipient's email address
+      const subject = 'Account created successfully';
+      const message = `A new Quiz of ${QuizCourse} has been added. Attempt and Submit it before Due Date.`;
+      try {
+        sendEmail(studentEmails, subject, message);
+        res.send({ "indicator": "success", "messege": "successfully inserted and Emails Sent To students" });
+      } catch (error) {
+        console.log(error)
+        res.send("successfully inserted but email not sent");
+      }
 
+      // .then((result) => res.send({ "indicator": "success", "messege": "Quiz Added successfully" }))
+      //   .catch((error) => res.send({ "indicator": "error", "messege": error }));
+
+    }
+    else {
+      console.log("Course not found");
+    }
   }
   else {
     res.status(403).send("Only teacher can access this");
@@ -94,7 +123,7 @@ async function DeleteQuiz(req, res, next) {
     res.status(403).send('Not logged in')
     return
   }
-  quiz.findByIdAndRemove({ _id: mongoose.Types.ObjectId(req.query.temp_id) }, (err) => {
+  quiz.findByIdAndRemove({ _id: Types.ObjectId(req.query.temp_id) }, (err) => {
 
     if (err) {
       res.send({ "indicator": "error", "messege": err });
@@ -152,18 +181,16 @@ async function GetStudentQuiz(req, res, next) {
         // Check if the student's ID is present in the Submitted_by array for each quiz
         const submitted_by_ids = current_quiz.Submitted_by.map(submittedBy => submittedBy.toString());
         let mark_obt_obj = {}
-        if(current_quiz.Submitted_by.includes(studentId.toString()))
-        {
+        if (current_quiz.Submitted_by.includes(studentId.toString())) {
           const studentIndex = current_quiz.Submitted_by.indexOf(studentId);
-          const marks =  current_quiz.obtained_marks[studentIndex];
-           mark_obt_obj = {"marks_obtained": marks}
+          const marks = current_quiz.obtained_marks[studentIndex];
+          mark_obt_obj = { "marks_obtained": marks }
         }
-        else
-        {
-        mark_obt_obj = {"marks_obtained": "-1"}
+        else {
+          mark_obt_obj = { "marks_obtained": "-1" }
         }
         // mark_obt_obj = { "marks_obtained": marks !== -1 ? marks : "Not marked yet" };
-        
+
         var has_submitted = submitted_by_ids.includes(studentId.toString());
         let sub_quiz = { ...current_quiz, ...{ "has_submitted": has_submitted }, ...mark_obt_obj }
         quizData.push(sub_quiz);
@@ -221,10 +248,9 @@ async function GetTeacherQuiz(req, res, next) {
           // you have student id here
           // find obtained marks of student._id in current quiz. current_quiz._id
           let marks_obt = "-1"
-          if(current_quiz.Submitted_by.includes(student._id.toString()))
-          {
+          if (current_quiz.Submitted_by.includes(student._id.toString())) {
             const studentIndex = current_quiz.Submitted_by.indexOf(student._id);
-            const marks =  current_quiz.obtained_marks[studentIndex];
+            const marks = current_quiz.obtained_marks[studentIndex];
             marks_obt = marks
           }
           current_quiz_names.push({ "student_id": student._id, "student_Firstname": student.First_name, "student_Lastname": student.Last_name, "marks_obtained": marks_obt })
@@ -235,7 +261,7 @@ async function GetTeacherQuiz(req, res, next) {
         response_data.push(new_obj)
 
       }
-     
+
       res.send({ message: 'success', data: response_data });
 
 
@@ -272,7 +298,7 @@ async function GetOnlyTeacherQuiz(req, res, next) {
       return;
     }
     else {
-      
+
 
       res.send({ message: 'success', data: quizData });
 
@@ -291,7 +317,7 @@ async function SearchQuiz(req, res, next) {
     return
   }
   if (req.session.user.Role == "Student") {
-    const QuestionData = await quiz.findOne({ _id: mongoose.Types.ObjectId(req.query.temp_id) });
+    const QuestionData = await quiz.findOne({ _id: Types.ObjectId(req.query.temp_id) });
     res.send({ message: 'success', data: QuestionData });
   }
 
@@ -309,9 +335,9 @@ async function UploadMarks(req, res, next) {
     try {
 
 
-      const student_id = mongoose.Types.ObjectId(req.body.Student_ID);
+      const student_id =mongoose.Types.ObjectId(req.body.Student_ID);
       const obtainedMarks = req.body.obtained_marks;
-      const quiz_data = await quiz.findOne({ _id: mongoose.Types.ObjectId(req.body.quiz_id) });
+      const quiz_data = await quiz.findOne({ _id: Types.ObjectId(req.body.quiz_id) });
       if (!quiz_data) {
         res.status(404).send({ message: 'Quiz not found', data: null });
         return;
@@ -357,43 +383,39 @@ async function GetObtainedMarks(req, res, next) {
       res.status(404).send({ message: 'No Quiz Found', data: null });
       return;
     }
-    else
-    {
-      const student_marks=[];
+    else {
+      const student_marks = [];
       const quizObtained_Marks = [];
-      for (const current_quiz of studentquizes) 
-      {
+      for (const current_quiz of studentquizes) {
         const studentIndex = current_quiz.Submitted_by.indexOf(studentId);
         console.log("student_index =", studentIndex);
 
         if (studentIndex !== -1) {
-          
+
           const student_marks = current_quiz.obtained_marks[studentIndex];
-      
+
           console.log("student_marks =", student_marks);
           quizObtained_Marks.push(...student_marks);
         }
       }
-        if (quizObtained_Marks.length === 0) {
-          res.status(404).send({ message: 'No Marks Given by teacher yet!!', data: null });
-          return;
-        }
-        else {
-          console.log(quizObtained_Marks);
-          res.send({ message: 'success', data: quizObtained_Marks });
-  
-        }
+      if (quizObtained_Marks.length === 0) {
+        res.status(404).send({ message: 'No Marks Given by teacher yet!!', data: null });
+        return;
+      }
+      else {
+        console.log(quizObtained_Marks);
+        res.send({ message: 'success', data: quizObtained_Marks });
 
       }
-    
+
+    }
+
 
   }
-  else
-  {
+  else {
     res.status(403).send({ message: 'Only Student can access this', data: null });
 
   }
-
 
 }
 module.exports = { AddQuiz, GetQuiz, DeleteQuiz, EditQuiz, FindQuiz, GetStudentQuiz, GetTeacherQuiz, SearchQuiz, UploadQuiz, UploadMarks, GetOnlyTeacherQuiz, GetObtainedMarks };
