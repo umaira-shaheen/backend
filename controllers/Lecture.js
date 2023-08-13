@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 const { lecture } = require("../models/Lecture");
 const fs = require('fs');
+const { course } = require("../models/Courses");
 async function AddLecture(req, res, next) {
  res.send(req.files);
 //  return;
@@ -93,4 +94,36 @@ async function GetLecture(req, res, next) {
       res.status(403).send("Only teacher can access this");
     }
   };
-module.exports = { AddLecture, GetLecture, FindLecture, EditLecture, DeleteLecture };
+  async function StudentLectures(req, res, next) {
+    if (!req.session.user) {
+      res.status(403).send('Not logged in');
+      return;
+    }
+    
+    if (req.session.user.Role === "Student") {
+      const studentId = mongoose.Types.ObjectId(req.query.temp_id);
+      const courseData = await course.find({ Students: studentId });
+  
+      if (!courseData || courseData.length === 0) {
+        res.status(404).send({ message: 'No Course Found', data: null });
+        return;
+      }
+  
+      const lectures = [];
+      for (const courseItem of courseData) {
+        const course_name = courseItem.Course_title;
+        const courseLectures = await lecture.find({ Lecture_Course: course_name });
+        lectures.push(...courseLectures);
+      }
+  
+      if (lectures.length > 0) {
+        res.send({ message: 'success', data: lectures });
+      } else {
+        res.status(404).send({ message: 'No Lecture Found', data: null });
+      }
+    } else {
+      res.send({ message: 'Only students can access this', data: null });
+    }
+  }
+  
+module.exports = { AddLecture, GetLecture, FindLecture, EditLecture, DeleteLecture, StudentLectures };

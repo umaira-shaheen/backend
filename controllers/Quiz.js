@@ -20,8 +20,8 @@ async function UploadQuiz(req, res, next) {
   }
   if (req.session.user.Role === 'Student') {
 
-    const quizId = Types.ObjectId(req.query.temp_id);
-    const studentId = Types.ObjectId(req.session.user._id);
+    const quizId = mongoose.Types.ObjectId(req.query.temp_id);
+    const studentId = mongoose.Types.ObjectId(req.session.user._id);
 
     file_path = null
     if (req.file) {
@@ -55,7 +55,7 @@ async function UploadQuiz(req, res, next) {
           quizData.Submitted_by = student_Ids;
           quizData.Submitted_files = Files_path;
           await quizData.save();
-          res.status(200).send('Quiz Submitted');
+          res.status(200).send('Quiz Submitted!');
         }
 
       }
@@ -94,7 +94,7 @@ async function AddQuiz(req, res, next) {
       const studentEmails = studentDataArray.map((studentData) => studentData.Email);
       console.log(studentEmails);
       //  Specify the recipient's email address
-      const subject = 'Account created successfully';
+      const subject = 'New Quiz Added';
       const message = `A new Quiz of ${QuizCourse} has been added. Attempt and Submit it before Due Date.`;
       try {
         sendEmail(studentEmails, subject, message);
@@ -123,7 +123,7 @@ async function DeleteQuiz(req, res, next) {
     res.status(403).send('Not logged in')
     return
   }
-  quiz.findByIdAndRemove({ _id: Types.ObjectId(req.query.temp_id) }, (err) => {
+  quiz.findByIdAndRemove({ _id: mongoose.Types.ObjectId(req.query.temp_id) }, (err) => {
 
     if (err) {
       res.send({ "indicator": "error", "messege": err });
@@ -189,7 +189,6 @@ async function GetStudentQuiz(req, res, next) {
         else {
           mark_obt_obj = { "marks_obtained": "-1" }
         }
-        // mark_obt_obj = { "marks_obtained": marks !== -1 ? marks : "Not marked yet" };
 
         var has_submitted = submitted_by_ids.includes(studentId.toString());
         let sub_quiz = { ...current_quiz, ...{ "has_submitted": has_submitted }, ...mark_obt_obj }
@@ -317,7 +316,7 @@ async function SearchQuiz(req, res, next) {
     return
   }
   if (req.session.user.Role == "Student") {
-    const QuestionData = await quiz.findOne({ _id: Types.ObjectId(req.query.temp_id) });
+    const QuestionData = await quiz.findOne({ _id: mongoose.Types.ObjectId(req.query.temp_id) });
     res.send({ message: 'success', data: QuestionData });
   }
 
@@ -337,7 +336,7 @@ async function UploadMarks(req, res, next) {
 
       const student_id =mongoose.Types.ObjectId(req.body.Student_ID);
       const obtainedMarks = req.body.obtained_marks;
-      const quiz_data = await quiz.findOne({ _id: Types.ObjectId(req.body.quiz_id) });
+      const quiz_data = await quiz.findOne({ _id: mongoose.Types.ObjectId(req.body.quiz_id) });
       if (!quiz_data) {
         res.status(404).send({ message: 'Quiz not found', data: null });
         return;

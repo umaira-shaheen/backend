@@ -40,6 +40,8 @@ const authRouter=require('./routes/auth_routes');
 const courseRouter=require('./routes/course_routes');
 var usersRouter = require('./routes/user_routes');
 var quizRouter = require('./routes/quiz_routes');
+var feedbackRouter= require('./routes/feedback_routes');
+var messegeRouter= require('./routes/messege_routes');
 var assignmentRouter = require('./routes/assignment_routes');
 var questionRouter = require('./routes/question_routes');
 var lectureRouter = require('./routes/lecture_routes');
@@ -48,6 +50,8 @@ var createError = require('http-errors');
 const { User } = require("./models/Users");
 const { course } = require("./models/Courses");
 const { quiz} = require("./models/Quiz");
+const { feedback} = require("./models/Feedback");
+const { messege} = require("./models/Messege");
 const { assignment} = require("./models/Assignment")
 const { question} = require("./models/Question")
 const { lecture} = require("./models/Lecture")
@@ -83,6 +87,8 @@ app.use('/User',usersRouter);
 app.use('/Quiz',quizRouter);
 app.use('/Assignment',assignmentRouter);
 app.use('/Question',questionRouter);
+app.use('/Feedback',feedbackRouter);
+app.use('/Messege',messegeRouter);
 app.use('/Lecture',lectureRouter);
 app.use('/', indexRouter);
 app.use('/about-me', indexRouter);

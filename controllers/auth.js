@@ -60,10 +60,7 @@ async function register(req, res,next)
         const userEmail = req.body.email // Specify the recipient's email address
         const subject = 'Account created successfully';
         const message = 'We are pleased to announce you that your account has been created at UKCELL Website.';
-        // when you add an assignment
-        // get course of that assignment
-        // const user_info = course.studnet_ids .map(id => await user.getbyId(id))
-        // based on course.students get info from Users table , user = ["email1@gmail.com", "email2@gmail.com"]
+     
         try {
          sendEmail(userEmail, subject, message);
           res.send("successfully inserted")

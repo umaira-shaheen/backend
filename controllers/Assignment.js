@@ -46,7 +46,7 @@ async function AddAssignment(req, res, next) {
         const studentEmails = studentDataArray.map((studentData) => studentData.Email); 
         console.log(studentEmails);
         //  Specify the recipient's email address
-      const subject = 'Account created successfully';
+      const subject = 'New Assignment Added';
       const message = `A new Assignment of ${AssignmentCourse} has been added. Attempt and Submit it before Due Date.`;
       try {
         sendEmail(studentEmails, subject, message);

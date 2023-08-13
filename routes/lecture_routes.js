@@ -17,6 +17,7 @@ const storage = multer.diskStorage({
   const authController=require('../controllers/Lecture');
 router.post('/AddLecture', upload.array('files') , authController.AddLecture);  
 router.get('/GetLecture', authController.GetLecture);  
+router.get('/StudentLectures', authController.StudentLectures);  
 router.get('/FindLecture', authController.FindLecture); 
 router.get('/DeleteLecture', authController.DeleteLecture); 
 router.post('/EditLecture', upload.single('file') ,authController.EditLecture); 
