@@ -45,6 +45,7 @@ var messegeRouter= require('./routes/messege_routes');
 var assignmentRouter = require('./routes/assignment_routes');
 var questionRouter = require('./routes/question_routes');
 var lectureRouter = require('./routes/lecture_routes');
+var ReportsRouter = require('./routes/reports_routes');
 
 var createError = require('http-errors');
 const { User } = require("./models/Users");
@@ -89,6 +90,7 @@ app.use('/Assignment',assignmentRouter);
 app.use('/Question',questionRouter);
 app.use('/Feedback',feedbackRouter);
 app.use('/Messege',messegeRouter);
+app.use('/Reports',ReportsRouter);
 app.use('/Lecture',lectureRouter);
 app.use('/', indexRouter);
 app.use('/about-me', indexRouter);

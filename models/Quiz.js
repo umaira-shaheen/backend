@@ -47,6 +47,6 @@ const quizSchema=new mongoose.Schema({
         // obtained_marks[index] = marks
       }
       
-});
+}, { timestamps: true });;
 const quiz = mongoose.model("quiz", quizSchema);
 module.exports = { quiz }; 

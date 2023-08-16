@@ -7,7 +7,7 @@ async function SendMessege(req, res, next) {
     res.status(403).send('Not logged in')
     return
   }
-    const first_messege = new messege({  Name: req.body.name, Email: req.body.email, Subject: req.body.subject, Messege: req.body.messege});
+    const first_messege = new messege({  Name: req.body.name, Email: req.body.email,PhoneNumber:req.body.phonenumber, Subject: req.body.subject, Messege: req.body.messege});
     first_messege.save();
     const userEmail = req.body.email // Specify the recipient's email address
     const subject = 'Contact to UKCELL';

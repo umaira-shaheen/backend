@@ -42,6 +42,6 @@ const assignmentSchema=new mongoose.Schema({
       }
       
       
-});
+}, { timestamps: true });;
 const assignment = mongoose.model("assignment", assignmentSchema);
 module.exports = { assignment }; 

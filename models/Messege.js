@@ -8,7 +8,10 @@ const messegeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-
+   PhoneNumber:{
+    type: String,
+    required: true,
+   },
   Subject:{
     type: String,  
     required: true,
