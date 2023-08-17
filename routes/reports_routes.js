@@ -4,5 +4,7 @@ const authController=require('../controllers/Reports');
 router.get('/StudentRegistrationReport', authController.StudentRegistrationReport);
 router.get('/StudentQuizReport', authController.StudentQuizReport);
 router.get('/StudentAssignmentReport', authController.StudentAssignmentReport);
-
+router.get('/CourseEnrollmentReport', authController.CourseEnrollmentReport);
+router.get('/TeacherReport', authController.TeacherReport);
+router.get('/CourseReport', authController.CourseReport);
 module.exports=router;

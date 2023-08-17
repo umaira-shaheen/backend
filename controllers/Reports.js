@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 const { user } = require("../models/Users");
 const { quiz } = require("../models/Quiz");
 const { assignment } = require("../models/Assignment");
+const { course } = require("../models/Courses");
 
 async function StudentRegistrationReport(req, res, next) {
   if (!req.session.user) {
@@ -12,11 +13,14 @@ async function StudentRegistrationReport(req, res, next) {
   const date_from = req.query.date_from;
   const date_to = req.query.date_to;
   const All_Time = req.query.All_Time;
+  let start_date=new Date(date_from);
+  let end_date=new Date(date_to);
+
+
   console.log(date_from);
   console.log(date_to);
   console.log(All_Time);
   let query = {};
-
   if (All_Time) {
     // If All_Time is true, no additional filtering is needed
   } else {
@@ -33,11 +37,122 @@ async function StudentRegistrationReport(req, res, next) {
   res.send(users);
   return users;
 }
+async function CourseReport(req, res, next) {
+  if (!req.session.user) {
+    res.status(403).send('Not logged in')
+    return
+  }
+  const courses = req.query.course;
+  const category = req.query.category;
+  const start_date = req.query.start_date;
+  const end_date = req.query.end_date;
+  console.log(courses);
+  console.log(category);
+  console.log(start_date);
+  console.log(end_date);
+  const StudentAndteachersWithNames = [];
+  if(category==='all' && courses=='all')
+  {
+    const filter = {};
+    const courseData = await course.find(filter);
+    for (const current_course of courseData) {
+      const teacher_id = current_course.assigned_to;
+      const student_ids = current_course.Students;
+    
+      const teacherUserDoc = await user.findOne({ _id: teacher_id });
+      const students = await user.find({ _id: { $in: student_ids } });
+      if (teacherUserDoc) {
+        const teacherDataWithNames = {
+          ...current_course.toObject(), // Convert Mongoose doc to plain object
+          Teacher_First_name: teacherUserDoc.First_name,
+          Teacher_Last_name: teacherUserDoc.Last_name,
+          Students: students.map(student => ({
+            Student_First_name: student.First_name,
+            Student_Last_name: student.Last_name,
+            // Add other student data properties if needed
+          })),
+          Num_Students: students.length, // Count of students in the course
+        };
+      
+        StudentAndteachersWithNames.push(teacherDataWithNames);
+   
+        }
+
+      }
+      res.status(200).send({ message: 'Success!', data: StudentAndteachersWithNames });
+    }
+  if(category!=='all' && courses!=='all')
+  {
+   
+    const courseData = await course.findOne({_id:courses});
+    console.log(courseData);
+      if(!courseData)
+      {
+        res.status(404).send({ message: 'Course Not Found!', data: null });
+
+      }
+      const teacher_id = courseData.assigned_to;
+      const student_ids = courseData.Students;
+    
+      const teacherUserDoc = await user.findOne({ _id: teacher_id });
+      const students = await user.find({ _id: { $in: student_ids } });
+      if (teacherUserDoc) {
+        const teacherDataWithNames = {
+          ...courseData.toObject(), // Convert Mongoose doc to plain object
+          Teacher_First_name: teacherUserDoc.First_name,
+          Teacher_Last_name: teacherUserDoc.Last_name,
+          Students: students.map(student => ({
+            Student_First_name: student.First_name,
+            Student_Last_name: student.Last_name,
+            // Add other student data properties if needed
+          })),
+          Num_Students: students.length, // Count of students in the course
+        };
+      
+        StudentAndteachersWithNames.push(teacherDataWithNames);
+   
+        }
+
+      
+      res.status(200).send({ message: 'Success!', data: StudentAndteachersWithNames });
+    }
+    if(category!=='all' && courses=='all')
+    { 
+    const courseData = await course.find({Course_category:category});
+    for (const current_course of courseData) {
+      const teacher_id = current_course.assigned_to;
+      const student_ids = current_course.Students;
+    
+      const teacherUserDoc = await user.findOne({ _id: teacher_id });
+      const students = await user.find({ _id: { $in: student_ids } });
+      if (teacherUserDoc) {
+        const teacherDataWithNames = {
+          ...current_course.toObject(), // Convert Mongoose doc to plain object
+          Teacher_First_name: teacherUserDoc.First_name,
+          Teacher_Last_name: teacherUserDoc.Last_name,
+          Students: students.map(student => ({
+            Student_First_name: student.First_name,
+            Student_Last_name: student.Last_name,
+            // Add other student data properties if needed
+          })),
+          Num_Students: students.length, // Count of students in the course
+        };
+      
+        StudentAndteachersWithNames.push(teacherDataWithNames);
+   
+        }
+
+      }
+      res.status(200).send({ message: 'Success!', data: StudentAndteachersWithNames });
+      }
+  
+}
 async function StudentQuizReport(req, res, next) {
   if (!req.session.user) {
     res.status(403).send('Not logged in')
     return
   }
+  const StudentWithNames = [];
   const student_Names = req.query.students;
   const quizes_title = req.query.quizes;
   const start_date = req.query.start_date;
@@ -50,7 +165,27 @@ async function StudentQuizReport(req, res, next) {
   {
     const filter = {};
     const quizData = await quiz.find(filter);
-    res.status(200).send({ message: 'Success!', data: quizData });
+    for (const current_quiz of quizData) {
+      
+      const student_ids = current_quiz.Submitted_by;    
+      const students = await user.find({ _id: { $in: student_ids } });
+    
+      if (students) {
+        const studentDataWithNames = {
+          ...current_quiz.toObject(), // Convert Mongoose doc to plain object
+            Submitted_by: students.map(student => ({
+            Student_First_name: student.First_name,
+            Student_Last_name: student.Last_name,
+            // Add other student data properties if needed
+          }))
+        };
+        StudentWithNames.push(studentDataWithNames);
+    
+        }
+
+      }
+    res.status(200).send({ message: 'Success!', data: StudentWithNames });
+    
   }
 
   if (student_Names !== 'all' && quizes_title !== 'all') {
@@ -189,4 +324,141 @@ async function StudentAssignmentReport(req, res, next) {
   
   
 }
-module.exports = {StudentRegistrationReport, StudentQuizReport , StudentAssignmentReport};
+async function CourseEnrollmentReport(req, res, next) {
+  if (!req.session.user) {
+    res.status(403).send('Not logged in')
+    return
+  }
+  const courses = req.query.courses;
+  const start_date = req.query.start_date;
+  const end_date = req.query.end_date;
+  console.log(courses);
+  console.log(start_date);
+  console.log(end_date);
+  if(courses==='all')
+  {
+    const filter = {};
+    const courseData = await course.find(filter);
+    res.status(200).send({ message: 'Success!', data: courseData });
+  }
+  if ( courses !== 'all') {
+    try {
+      const courseId = mongoose.Types.ObjectId(courses);
+      const course_data = await course.findOne({ _id: courseId });
+      if (!course_data) {
+        res.status(404).send({ message: 'Course not found', data: null });
+        return;
+      }   
+      res.status(200).send({ message: 'Success!', data: course_data });
+    } catch (error) {
+      res.status(500).send({ message: 'Internal server error', data: null });
+    }
+  }
+  
+
+}
+async function TeacherReport(req, res, next) {
+  if (!req.session.user) {
+    res.status(403).send('Not logged in')
+    return
+  }
+  const teachers = req.query.teachers;
+  const start_date = req.query.start_date;
+  const end_date = req.query.end_date;
+  console.log(teachers);
+  console.log(start_date);
+  console.log(end_date);
+  const StudentAndteachersWithNames = [];
+  if(teachers==='all')
+  {
+  
+    const filter = {};
+    const teacherData = await course.find(filter);
+    for (const current_teacher of teacherData) {
+      const teacher_id = current_teacher.assigned_to;
+      const student_ids = current_teacher.Students;
+    
+      const teacherUserDoc = await user.findOne({ _id: teacher_id });
+    
+      const students = await user.find({ _id: { $in: student_ids } });
+    
+      if (teacherUserDoc) {
+        const teacherDataWithNames = {
+          ...current_teacher.toObject(), // Convert Mongoose doc to plain object
+          Teacher_First_name: teacherUserDoc.First_name,
+          Teacher_Last_name: teacherUserDoc.Last_name,
+          Students: students.map(student => ({
+            Student_First_name: student.First_name,
+            Student_Last_name: student.Last_name,
+            // Add other student data properties if needed
+          }))
+        };
+        StudentAndteachersWithNames.push(teacherDataWithNames);
+    // for (const current_teacher of teacherData) {
+    //   const teacher_id = current_teacher.assigned_to;
+    //   const student_ids = current_teacher.Students;
+    //   const students = student_ids.map(studentId => user.findById(studentId));
+    //   const studentsData = await Promise.all(students);
+    //   console.log(teacher_id);
+    //     const userDoc = await user.findOne({_id:teacher_id});
+    //      console.log(userDoc);
+    //      if (userDoc) {
+    //       // Push teacher data along with names to the array
+    //       StudentAndteachersWithNames.push({
+    //         ...current_teacher.toObject(), // Convert Mongoose doc to plain object
+    //         First_name: userDoc.First_name,
+    //         Last_name: userDoc.Last_name
+    //         Student_First_name: studentsData.First_name,
+    //         Student_Last_name: studentsData.Last_name
+    //       });
+    //     }
+        }
+
+      }
+      res.status(200).send({ message: 'Success!', data: StudentAndteachersWithNames });
+    }
+  
+  if ( teachers !== 'all') {
+    try {
+      const teacherId = mongoose.Types.ObjectId(teachers);
+      const course_data = await course.find({ assigned_to: teacherId });
+      if (!course_data) {
+        res.status(404).send({ message: 'Course not found', data: null });
+        return;
+      }   
+      for (const current_teacher of course_data) {
+        const teacher_id = current_teacher.assigned_to;
+        const student_ids = current_teacher.Students;
+      
+        const teacherUserDoc = await user.findOne({ _id: teacher_id });
+      
+        const students = await user.find({ _id: { $in: student_ids } });
+      
+        if (teacherUserDoc) {
+          const teacherDataWithNames = {
+            ...current_teacher.toObject(), // Convert Mongoose doc to plain object
+            Teacher_First_name: teacherUserDoc.First_name,
+            Teacher_Last_name: teacherUserDoc.Last_name,
+            Students: students.map(student => ({
+              Student_First_name: student.First_name,
+              Student_Last_name: student.Last_name,
+              // Add other student data properties if needed
+            }))
+          };
+          StudentAndteachersWithNames.push(teacherDataWithNames);
+     
+          }
+  
+        }
+      
+      res.status(200).send({ message: 'Success!', data: StudentAndteachersWithNames });
+    } catch (error) {
+      res.status(500).send({ message: 'Internal server error', data: null });
+    }
+  }
+  
+
+}
+
+
+module.exports = {StudentRegistrationReport, StudentQuizReport , StudentAssignmentReport, CourseEnrollmentReport,TeacherReport, CourseReport};
