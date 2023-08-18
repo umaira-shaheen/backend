@@ -332,8 +332,6 @@ async function UploadMarks(req, res, next) {
   }
   if (req.session.user.Role == "Teacher") {
     try {
-
-
       const student_id =mongoose.Types.ObjectId(req.body.Student_ID);
       const obtainedMarks = req.body.obtained_marks;
       const quiz_data = await quiz.findOne({ _id: mongoose.Types.ObjectId(req.body.quiz_id) });

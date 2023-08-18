@@ -1,20 +1,5 @@
 const { user } = require("../models/Users");
 const sendEmail= require("../Email");
-async function get_data(req,res,next)
-{
-  res.send(req.query.name);
-}
-
-async function get_age(req,res,next) 
-{
-  res.send(req.query.age); 
-}
-
-async function get_marks(req,res,next)
-{
-  res.send(req.query.marks);
-}
-
 async function validate(req,res,next)
 {
   user.findOne({Email:req.body.email , Password:req.body.password},function(error,docs)
@@ -83,6 +68,31 @@ async function logout(req, res, next) {
     }
   });
 }
+async function ForgotPassword(req,res,next)
+{
+  user.findOne({Email:req.body.email},function(error,docs)
+  {
+    if(docs)
+    {
+      const userEmail = req.body.email // Specify the recipient's email address
+      const subject = 'Forgot Password';
+      const message = 'Here is the password reset link. Click here to reset your Password';
+      try {
+       sendEmail(userEmail, subject, message);
+        res.send("Email Sent")
+      } catch (error) {
+        console.log(error)
+        res.send(" email not sent")
+      }
+     
+    }
+    else
+    {
+      res.status(404).send('invalid Email');
+      
+      // res.send(req.session);
+    }
+  })
+}
 
-
-module.exports={get_data, get_age, get_marks , validate, register, logout};
+module.exports={ validate, register, logout, ForgotPassword};
