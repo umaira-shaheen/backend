@@ -43,6 +43,8 @@ var quizRouter = require('./routes/quiz_routes');
 var feedbackRouter= require('./routes/feedback_routes');
 var messegeRouter= require('./routes/messege_routes');
 var assignmentRouter = require('./routes/assignment_routes');
+var certificateRouter = require('./routes/certificate_routes');
+
 var questionRouter = require('./routes/question_routes');
 var lectureRouter = require('./routes/lecture_routes');
 var ReportsRouter = require('./routes/reports_routes');
@@ -54,6 +56,8 @@ const { quiz} = require("./models/Quiz");
 const { feedback} = require("./models/Feedback");
 const { messege} = require("./models/Messege");
 const { assignment} = require("./models/Assignment")
+const { certificate} = require("./models/Certificate")
+
 const { question} = require("./models/Question")
 const { lecture} = require("./models/Lecture")
 
@@ -91,6 +95,7 @@ app.use('/Question',questionRouter);
 app.use('/Feedback',feedbackRouter);
 app.use('/Messege',messegeRouter);
 app.use('/Reports',ReportsRouter);
+app.use('/Certificate',certificateRouter);
 app.use('/Lecture',lectureRouter);
 app.use('/', indexRouter);
 app.use('/about-me', indexRouter);
