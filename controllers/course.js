@@ -7,9 +7,16 @@ async function AddCourse(req, res, next) {
   // res.send(req.session.user);
   if (req.session.user.Role === "Admin") {
     const admin_id = req.session.user._id;
-    course.findOne({ Course_code: req.body.course_code }, function (error, docs) {
-      if (docs) {
-        res.send("Course with the same coursecode exists");
+    course.findOne(
+      {
+        $or: [
+          { Course_code: req.body.course_code },
+          { Course_title: req.body.course_name }
+        ]
+      },
+      function (error, docs) {      
+        if (docs) {
+        res.send("Course with the same coursecode or coursename exists");
       }
       else {
 
@@ -28,17 +35,34 @@ async function AddCourse(req, res, next) {
 async function AssignCourse(req, res, next) {
 
   if (req.session.user.Role === "Admin") {
-
-    course.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.course_id), { assigned_to: req.body.teacher_id }, { new: true }, function (error, docs) {
-      if (error) {
-        res.send("Failed to update the course");
+    const course_id = req.body.course_id;
+    course.findOne({ _id: course_id }, function (error, docs) {
+      if (!docs) {
+        res.send("Course not found");
       }
       else {
-        res.send("success");
-      }
+        const teacher_id = req.body.teacher_id;
+        course.findOne({ assigned_to: teacher_id }, function (error, docs) {
+          if (docs) {
+            res.send("You have already assigned this course to this teacher");
+          }
+          else {
+            course.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.course_id), { assigned_to: req.body.teacher_id }, { new: true }, function (error, docs) {
+              if (error) {
+                res.send("Failed to update the course");
+              }
+              else {
+                res.send("success!");
+              }
 
-      // res.send(docs);
+              // res.send(docs);
+            })
+          }
+        })
+      }
     })
+
+
   }
   else {
     res.status(403).send("Only administrator can access this");
@@ -80,8 +104,9 @@ async function FindCourse(req, res, next) {
 };
 async function EditCourse(req, res, next) {
 
-
-  course.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.id), { Course_title: req.body.course_name, Course_code: req.body.course_code, Course_category: req.body.Category, start_date: req.body.start_date, end_date: req.body.end_date, description: req.body.Description, status: req.body.status }, function (error, docs) {
+  const file = req.file;
+  const file_path = file.path;
+  course.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.id), { Course_title: req.body.course_name, Course_code: req.body.course_code,course_img: file_path, Course_category: req.body.Category, start_date: req.body.start_date, end_date: req.body.end_date, description: req.body.Description, status: req.body.status }, function (error, docs) {
     if (error) {
       res.send("Failed to update the course");
     }
@@ -168,36 +193,35 @@ async function EnrollCourse(req, res, next) {
 async function StudentCourses(req, res, next) {
 
   if (!req.session.user) {
-    res.status(403).send({"message": "Not logged in", "data": null})
+    res.status(403).send({ "message": "Not logged in", "data": null })
     return
   }
 
-if(req.session.user.Role=="Student")
-{
-  const studentId = mongoose.Types.ObjectId(req.query.temp_id);
+  if (req.session.user.Role == "Student") {
+    const studentId = mongoose.Types.ObjectId(req.query.temp_id);
 
-  try {
-    const courseData = await course.find({ Students: studentId });
-    console.log(courseData);
-    if (!courseData) {
-      res.status(404).send({"message": 'No Course Found', "data": null});
-      return;
+    try {
+      const courseData = await course.find({ Students: studentId });
+      console.log(courseData);
+      if (!courseData) {
+        res.status(404).send({ "message": 'No Course Found', "data": null });
+        return;
+      }
+
+      else {
+        res.send({ "message": "success", "data": courseData });
+      }
+
     }
-
-    else {
-      res.send({"message": "success", "data": courseData});
+    catch (error) {
+      console.log(error)
+      res.status(500).send({ "message": "error", "data": error });
     }
+  }
+  else {
+    res.send({ "message": "only student can access this", "data": null });
+  }
 
-  }
-  catch (error) {
-    console.log(error)
-    res.status(500).send({"message": "error", "data": error});
-  }
-}
-else{
-  res.send({"message":  "only student can access this", "data": null});
-}
-  
 }
 
 

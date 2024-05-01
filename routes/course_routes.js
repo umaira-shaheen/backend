@@ -23,7 +23,7 @@ router.get('/GetRecentCourse', authController.GetRecentCourse);
 router.get('/GetAllCourse', authController.GetAllCourse);
 router.get('/DeleteCourse', authController.DeleteCourse);
 router.get('/FindCourse', authController.FindCourse);
-router.post('/EditCourse', authController.EditCourse);
+router.post('/EditCourse',upload.single('file') , authController.EditCourse);
 router.post('/AssignCourse', authController.AssignCourse);
 router.get('/get_teacher_courses', authController.GetTeacherCourses);
 router.get('/EnrollCourse', authController.EnrollCourse);

@@ -1,5 +1,6 @@
 const { user } = require("../models/Users");
 const sendEmail = require("../Email");
+var mongoose=require('mongoose');
 const crypto = require('crypto');
 async function validate(req, res, next) {
   user.findOne({ Email: req.body.email, Password: req.body.password }, function (error, docs) {
@@ -72,8 +73,10 @@ function generateRandomString(length) {
 }
 
 async function ForgotPassword(req, res, next) {
+
   user.findOne({ Email: req.body.email }, function (error, userDoc) {
     if (userDoc) {
+     
       const token = generateRandomString(32); // Generate random token
       userDoc.Token = token; // Save token in the user's Token field
       userDoc.save();
@@ -81,12 +84,19 @@ async function ForgotPassword(req, res, next) {
       // save that token in token of that user
       const userEmail = req.body.email // Specify the recipient's email address
       const subject = 'Forgot Password';
-      const tokenLink = `http://localhost:3000/reset-password?token=${token}`;
-      const message = `
-  <p>Here is the password reset link. Click <a href="${tokenLink}">here</a> to reset your password.</p>
-`;
+      const emailContent = `
+          <html>
+            <body>
+              <h1>Hello!</h1>
+              <p>Here is your <strong>HTML</strong> password reset Link.</p>
+              <p><a href="http://localhost:3000/auth/reset-password?token=${token}">Click here</a> to visit our website and reset your password</p>
+            </body>
+          </html>
+        `;
+       
+
       try {
-        sendEmail(userEmail, subject, message);
+        sendEmail(userEmail, subject, emailContent, true);
         res.send("Email Sent to reset your password")
       } catch (error) {
         console.log(error)
@@ -102,37 +112,45 @@ async function ForgotPassword(req, res, next) {
   })
 }
 async function CheckToken(req, res, next) {
-  const token_id=req.query.token_id;
+  const token_id = req.query.token_id;
   user.findOne({ Token: token_id }, function (error, docs) {
-     if(docs)
-     {
-        res.send("valid request");
-     }
-     else
-     {
-      res.send("invalid request");
-
-     }
-  })
-  
-}
-async function CheckToken(req, res, next) {
-  const Password=e.target.body.password;
-  const Confirm_password=e.target.body.confirm_password;
-  if (!req.session.user) {
-    res.status(403).send('Not logged in');
-    return;
-  }
-  const user_id=req.session.user._id;
-  user.findByIdAndUpdate(mongoose.Types.ObjectId(user_id), { Password:Password, Confirm_Password:Confirm_password }, function (error, docs) {
-    if (error) {
-      res.send("Failed to update your password");
+    if (docs) {
+      res.send("valid request");
     }
     else {
-      res.send("success");
+      res.send("invalid request");
+
+    }
+  })
+
+}
+async function ResetPassword(req, res, next) {
+ 
+  const Password = req.body.password;
+  const Confirm_password = req.body.confirm_password;
+  user.findOne({ Email: req.body.email }, function (error, userDoc) {
+    if(userDoc)
+    {
+      const user_id= userDoc._id;
+      user.findByIdAndUpdate(mongoose.Types.ObjectId(user_id), { Password: Password, Confirm_Password: Confirm_password }, function (error, docs) {
+        if (error) {
+          res.send("Failed to update your password");
+        }
+        else {
+          res.send("success");
+        }
+    
+        // res.send(docs);
+      })
+    }
+    else
+    {
+      res.send("Email Donot Exists! Plz Enter valid Email");
+
     }
 
-    // res.send(docs);
   })
+ 
+  
 }
-module.exports = { validate, register, logout, ForgotPassword, CheckToken };
+module.exports = { validate, register, logout, ForgotPassword, CheckToken , ResetPassword};

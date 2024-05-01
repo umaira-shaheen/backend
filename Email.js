@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 
-const sendEmail = (to, subject, text) => {
+const sendEmail = (to, subject, text, as_html=false) => {
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
@@ -8,13 +8,24 @@ const sendEmail = (to, subject, text) => {
       pass: 'pxknibizrdlxknxl'
     }
   });
-
-  const mailOptions = {
-    from: 'noreply@ukcell.com',
-    to,
-    subject,
-    text
-  };
+  let mailOptions = {}
+  if(as_html)
+  {
+    mailOptions = {
+      from: 'noreply@ukcell.com',
+      to,
+      subject,
+      html: text
+    };
+  }
+  else {
+    mailOptions = {
+      from: 'noreply@ukcell.com',
+      to,
+      subject,
+      text
+    };
+  }
 
   return new Promise((resolve, reject) => {
     transporter.sendMail(mailOptions, (error, info) => {

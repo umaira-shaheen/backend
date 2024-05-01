@@ -19,6 +19,8 @@ router.post('/AddLecture', upload.array('files') , authController.AddLecture);
 router.get('/GetLecture', authController.GetLecture);  
 router.get('/StudentLectures', authController.StudentLectures);  
 router.get('/FindLecture', authController.FindLecture); 
+router.get('/StudentFindLecture', authController.StudentFindLecture); 
+
 router.get('/DeleteLecture', authController.DeleteLecture); 
-router.post('/EditLecture', upload.single('file') ,authController.EditLecture); 
+router.post('/EditLecture',upload.array('files') ,authController.EditLecture); 
 module.exports=router;

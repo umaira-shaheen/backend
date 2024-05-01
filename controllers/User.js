@@ -1,6 +1,8 @@
 var mongoose=require('mongoose');
 const {user}=require("../models/Users");
 const fs = require('fs');
+const sendEmail = require("../Email");
+const crypto = require('crypto');
 async function GetUser(req,res,next)
 {
   const filter = {};
@@ -8,8 +10,18 @@ async function GetUser(req,res,next)
   res.send(AllUsers);
   
 }
+function generateRandomString(length) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let randomString = '';
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    randomString += characters.charAt(randomIndex);
+  }
+  return randomString;
+}
 async function  AddUser(req,res,next)
 {
+  const user_password = generateRandomString(8); // Generate random token
   user.findOne({Email:req.body.email},function(error,docs)
   {
     if(docs)
@@ -18,11 +30,27 @@ async function  AddUser(req,res,next)
     }
     else{
 
-      const first_user=new user({First_name:req.body.first_name, Last_name:req.body.last_name, Email:req.body.email, Address:req.body.address, Phone_no:req.body.phone_no, Role:req.body.role});
-      first_user.save().then((result) => res.send("success"))
-     .catch((error) => res.send(error));
-     
-      // res.send(docs);
+      const first_user=new user({First_name:req.body.first_name, Last_name:req.body.last_name, Email:req.body.email,Password:user_password, Address:req.body.address, Phone_no:req.body.phone_no, Role:req.body.role});
+      first_user.save();
+      const userEmail = req.body.email // Specify the recipient's email address
+      const subject = 'Your Account Registered!';
+      const emailContent = `
+          <html>
+            <body>
+              <h1>Hello!</h1>
+              <p>Here is your <strong>password and email</strong> to get login to UKCELL's Website  .${userEmail} and ${user_password}</p>
+              <p><a href="http://localhost:3000/auth/login?password=${user_password}">Click here</a> to visit our website and get login</p>
+            </body>
+          </html>
+        `;  
+      try {
+        sendEmail(userEmail, subject, emailContent, true);
+        res.send("Email Sent to user and account registered")
+      } catch (error) {
+        console.log(error)
+        res.send(" email not sent")
+      }
+         // res.send(docs);
     }
   })
 }

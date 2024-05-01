@@ -47,6 +47,20 @@ async function GetLecture(req, res, next) {
     const LectureData = await lecture.findOne({ _id: mongoose.Types.ObjectId(req.query.temp_id) });
     res.send(LectureData);
   };
+  async function StudentFindLecture(req, res, next) {
+    
+    // if (!req.session.user) {
+    //   res.status(403).send('Not logged in')
+    //   return
+    // }
+      let courseID=req.query.course_id;
+      
+      const courseData = await course.findOne({_id:courseID});
+      let coursename=courseData.Course_title;
+      const LectureData = await lecture.find({ Lecture_Course:coursename });
+
+      res.send(LectureData);
+    };
 
   async function EditLecture(req, res, next) 
   {
@@ -57,11 +71,8 @@ async function GetLecture(req, res, next) {
   }
   if (req.session.user.Role === "Teacher") {
    const teacher_id = req.session.user._id;
-    const notesfile = req.file;
-    const audiofile=req.audiofile;
-    const Notesfile_path = notesfile.path;
-    const Audiofile_path = audiofile.path;
-    lecture.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.id), { Added_by: teacher_id, Lecture_title: req.body.Lecture_title, Lecture_Course: req.body.Lecture_Course, Lecture_notes: Notesfile_path,Lecture_audio:Audiofile_path, Lecture_Number: req.body.Lecture_Number, description: req.body.Description  }, function (error, docs) {
+   const lecturefilespath = req.files.map(file=>file.path);
+    lecture.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.id), { Added_by: teacher_id, Lecture_title: req.body.Lecture_title,Lecture_files:lecturefilespath, Lecture_Course: req.body.Lecture_Course, Lecture_Number: req.body.Lecture_Number, description: req.body.Description  }, function (error, docs) {
       if (error) {
         res.send("Failed to update the Lecture");
       }
@@ -126,4 +137,4 @@ async function GetLecture(req, res, next) {
     }
   }
   
-module.exports = { AddLecture, GetLecture, FindLecture, EditLecture, DeleteLecture, StudentLectures };
+module.exports = { AddLecture, GetLecture, FindLecture, EditLecture, DeleteLecture, StudentLectures, StudentFindLecture };

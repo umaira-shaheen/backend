@@ -19,7 +19,7 @@ const lectureSchema = new mongoose.Schema({
  
   description: {
     type: String,
-    required: true,
+    
   },
   Added_by: {
     type: String,

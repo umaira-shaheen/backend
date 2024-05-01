@@ -6,5 +6,6 @@ router.post('/register' , authController.register);
 router.post('/logout' , authController.logout);
 router.post('/ForgotPassword' , authController.ForgotPassword);
 router.get('/CheckToken' , authController.CheckToken);
+router.post('/ResetPassword' , authController.ResetPassword);
 
 module.exports=router;
